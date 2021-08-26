@@ -23,6 +23,11 @@ class EduSharingHelper {
             "publickey" => $publickey
         ];
     }
+
+    /**
+     * Generates an edu-sharing compatible xml file for registering the application
+     * This is a very basic function and is only intended for demonstration or manual use. Data is not escaped!
+     */
     public static function generateEduAppXMLData(string $appId, string $publickey, string $type = 'LMS', string $publicIP = '*') {
         return '<?xml version="1.0" encoding="UTF-8"?>
                 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">

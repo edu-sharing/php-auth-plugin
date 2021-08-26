@@ -12,7 +12,7 @@ class EduSharingAuthHelper {
      * @param string $privateKey
      * Your app's private key. This must match the public key registered in the repo
      * @param string $appId
-     * Your app id name. Only use [a-z][A-Z][0-9][-_
+     * Your app id name (as registered in the edu-sharing repository)
      */
     public function __construct(
         string $baseUrl,
@@ -26,9 +26,27 @@ class EduSharingAuthHelper {
         $this->privateKey=$privateKey;
         $this->appId=$appId;
     }
+
+    /**
+     * Generates the header to use for a given ticket to authenticate with any edu-sharing api endpoint
+     * @param string $ticket
+     * The ticket, obtained by @getTicketForUser
+     * @return string
+     */
     public function getRESTAuthenticationHeader(string $ticket) {
         return 'Authorization: EDU-TICKET ' . $ticket;
     }
+
+    /**
+     * Gets detailed information about a ticket
+     * Will throw an exception if the given ticket is not valid anymore
+     * @param string $ticket
+     * The ticket, obtained by @getTicketForUser
+     * @return array
+     * Detailed information about the current session
+     * @throws Exception
+     * Thrown if the ticket is not valid anymore
+     */
     public function getTicketAuthenticationInfo(string $ticket) {
         $curl = curl_init($this->baseUrl . '/rest/authentication/v1/validateSession');
         curl_setopt_array($curl, [
@@ -46,6 +64,15 @@ class EduSharingAuthHelper {
         }
         return $data;
     }
+
+    /**
+     * Fetches the edu-sharing ticket for a given username
+     * @param string $username
+     * The username you want to generate a ticket for
+     * @return string
+     * The ticket, which you can use as an authentication header, see @getRESTAuthenticationHeader
+     * @throws Exception
+     */
     public function getTicketForUser(string $username) {
         $curl = curl_init($this->baseUrl . '/rest/authentication/v1/appauth/' . rawurlencode($username));
         $ts = time() * 1000;
