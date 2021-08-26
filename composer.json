@@ -1,0 +1,11 @@
+{
+    "name": "edu-sharing/auth-plugin",
+    "description": "Plugin to provide authentification via Auth By App with a edu-sharing repository",
+    "type": "library",
+    "authors": [
+        {
+            "name": "Torsten Simon",
+            "email": "simon@edu-sharing.net"
+        }
+    ]
+}
