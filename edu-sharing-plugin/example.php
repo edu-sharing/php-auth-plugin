@@ -1,17 +1,20 @@
 <?php
 /**
- * This is a sample file on how to use the edu-sharing authentication library
+ * This is a sample file on how to use the edu-sharing remote library
  * Run this script for the first time to create a private/public keypair
  * On first run, a properties.xml file will be created
  * Upload this file to your target edu-sharing (Admin-Tools -> Remote Systems -> Choose XML-File)
  */
 
-if(count($argv) !== 2) {
-    die('This script excepts exactly one command line argument: The full URL to your edu-sharing backend, e.g. "http://localhost:8080/edu-sharing"');
+if(count($argv) < 2) {
+    die('This script should be called as follow: "example.php http://localhost:8080/edu-sharing [<node-id>]"');
 }
 define('APP_ID', 'sample-app');
+define('USERNAME', 'tester');
 require_once "edu-sharing-helper.php";
+require_once "edu-sharing-helper-base.php";
 require_once "edu-sharing-auth-helper.php";
+require_once "edu-sharing-node-helper.php";
 
 $privatekey = @file_get_contents('private.key');
 if(!$privatekey) {
@@ -19,11 +22,29 @@ if(!$privatekey) {
     // store the $key data inside your application, e.g. your database or plugin config
     file_put_contents(APP_ID . '.properties.xml', EduSharingHelper::generateEduAppXMLData(APP_ID, $key['publickey']));
     file_put_contents('private.key', $key['privatekey']);
-    die('Wrote ' . APP_ID . '.properties.xml file. Upload it to edu-sharing, then run the script again');
+    die('Wrote ' . APP_ID . '.properties.xml file. Upload it to edu-sharing, then run this script again');
 } else {
     $key["privatekey"] = $privatekey;
 }
 
-$authHelper = new EduSharingAuthHelper($argv[1], $key["privatekey"], APP_ID);
-$ticket = $authHelper->getTicketForUser("tester");
+// init the base class instance we use for all helpers
+$base = new EduSharingHelperBase($argv[1], $key["privatekey"], APP_ID);
+$base->setLanguage('de');
+
+// authenticating (getting a ticket) and validating the given ticket
+$authHelper = new EduSharingAuthHelper($base);
+$ticket = $authHelper->getTicketForUser(USERNAME);
+echo "Ticket validation result:\n";
 print_r($authHelper->getTicketAuthenticationInfo($ticket));
+
+if(count($argv) !== 3) {
+    die("No node id given. Add a 3rd parameter to test create + fetching of nodes by usage");
+}
+$nodeHelper = new EduSharingNodeHelper($base);
+$usage = $nodeHelper->createUsage($ticket, '1', '1', $argv[2]);
+echo "Usage create result:\n";
+print_r($usage);
+
+$node = $nodeHelper->getNodeByUsage($usage);
+echo "Get node by usage:\n";
+print_r($node["node"]["name"]);
