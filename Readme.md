@@ -1,7 +1,7 @@
-# edu sharing php library
+# edu-sharing php library
 
 ## Usage scenarios
-This library is intented for 3rd party systems (e.g. LMS, CMS) to interconnect with edu sharing in order to embed edu-sharing materials into their pages.
+This library is intented for 3rd party systems (e.g. LMS, CMS) to interconnect with edu-sharing in order to embed edu-sharing materials into their pages.
 
 ## Pre-Requisites
 Every 3rd party system will need to registered in edu-sharing first.
