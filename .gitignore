@@ -1,4 +1,4 @@
 /vendor/
-/edu-sharing-plugin/private.key
-/edu-sharing-plugin/sample-app.properties.xml
+/edu-sharing-plugin/example/private.key
+/edu-sharing-plugin/example/sample-app.properties.xml
 .idea/

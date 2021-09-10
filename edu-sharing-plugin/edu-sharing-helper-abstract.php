@@ -28,8 +28,8 @@ abstract class EduSharingHelperAbstract {
         $toSign = $this->base->appId . $signString . $ts;
         $signature = $this->sign($toSign);
         return [
-            'Accept: application/json',
-            'Content-Type: application/json',
+            'Accept: ' . $accept,
+            'Content-Type: ' . $contentType,
             'X-Edu-App-Id: ' . $this->base->appId,
             'X-Edu-App-Signed: ' . $toSign,
             'X-Edu-App-Sig: ' . $signature,

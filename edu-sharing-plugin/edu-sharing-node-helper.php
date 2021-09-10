@@ -9,15 +9,15 @@ class DisplayMode {
 class Usage {
     public $nodeId;
     public $nodeVersion;
-    public $courseOrResourceId;
+    public $containerId;
     public $resourceId;
     public $usageId;
 
-    public function __construct($nodeId, $nodeVersion, $courseOrResourceId, $resourceId, $usageId)
+    public function __construct($nodeId, $nodeVersion, $containerId, $resourceId, $usageId)
     {
         $this->nodeId = $nodeId;
         $this->nodeVersion = $nodeVersion;
-        $this->courseOrResourceId = $courseOrResourceId;
+        $this->containerId = $containerId;
         $this->resourceId = $resourceId;
         $this->usageId = $usageId;
     }
@@ -32,8 +32,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      * MUST have CC_PUBLISH permissions on the given node id
      * @param string $ticket
      * A ticket with the user session who is creating this usage
-     * @param string $courseOrPageId
-     * The page or course id this usage refers to inside your system (e.g. a database id of your page)
+     * @param string $containerId
+     * A unique page / course id this usage refers to inside your system (e.g. a database id of the page you include the usage)
      * @param string $resourceId
      * The individual resource id on the current page or course this object refers to
      * (you may enumerate or use unique UUID's)
@@ -48,7 +48,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      */
     public function createUsage(
         string $ticket,
-        string $courseOrPageId,
+        string $containerId,
         string $resourceId,
         string $nodeId,
         string $nodeVersion = null
@@ -61,7 +61,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => json_encode([
                 'appId' => $this->base->appId,
-                'courseId' => $courseOrPageId,
+                'courseId' => $containerId,
                 'resourceId' => $resourceId,
                 'nodeId' => $nodeId,
                 'nodeVersion' => $nodeVersion,
@@ -75,9 +75,9 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         curl_close($curl);
         if ($err === 0 && $info["http_code"] === 200) {
             return new Usage(
-                $nodeId,
+                $data['parentNodeId'],
                 $nodeVersion,
-                $courseOrPageId,
+                $containerId,
                 $resourceId,
                 $data['nodeId']
             );
@@ -94,10 +94,10 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      * The usage, as previously returned by @createUsage
      * @param string $displayMode
      * The displayMode
-     * This will ONLY change the content representation inside the "html" return value
+     * This will ONLY change the content representation inside the "detailsSnippet" return value
      * @param array $renderingParams
      * @return mixed
-     * Returns an object containing a "html" repesentation
+     * Returns an object containing a "detailsSnippet" repesentation
      * as well as the full node as provided by the REST API
      * Please refer to the edu-sharing REST documentation for more details
      * @throws Exception
@@ -117,7 +117,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
 
         $headers = $this->getSignatureHeaders($usage->usageId);
         $headers[] = 'X-Edu-Usage-Node-Id: ' . $usage->nodeId;
-        $headers[] = 'X-Edu-Usage-Course-Id: ' . $usage->courseOrResourceId;
+        $headers[] = 'X-Edu-Usage-Course-Id: ' . $usage->containerId;
         $headers[] = 'X-Edu-Usage-Resource-Id: ' . $usage->resourceId;
 
         curl_setopt_array($curl, [
@@ -130,7 +130,6 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         $data = json_decode(curl_exec($curl), true);
         $err     = curl_errno( $curl );
         $info = curl_getinfo($curl);
-        print_r($data);
         if ($err === 0 && $info["http_code"] === 200) {
             return $data;
         } else {

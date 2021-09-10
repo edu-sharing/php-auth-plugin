@@ -6,15 +6,12 @@
  * Upload this file to your target edu-sharing (Admin-Tools -> Remote Systems -> Choose XML-File)
  */
 
-if(count($argv) < 2) {
-    die('This script should be called as follow: "example.php http://localhost:8080/edu-sharing [<node-id>]"');
-}
 define('APP_ID', 'sample-app');
 define('USERNAME', 'tester');
-require_once "edu-sharing-helper.php";
-require_once "edu-sharing-helper-base.php";
-require_once "edu-sharing-auth-helper.php";
-require_once "edu-sharing-node-helper.php";
+require_once "../edu-sharing-helper.php";
+require_once "../edu-sharing-helper-base.php";
+require_once "../edu-sharing-auth-helper.php";
+require_once "../edu-sharing-node-helper.php";
 
 $privatekey = @file_get_contents('private.key');
 if(!$privatekey) {
@@ -26,7 +23,9 @@ if(!$privatekey) {
 } else {
     $key["privatekey"] = $privatekey;
 }
-
+if(count($argv) < 2) {
+    die('This script should be called as follow: "example.php http://localhost:8080/edu-sharing [<node-id>]"');
+}
 // init the base class instance we use for all helpers
 $base = new EduSharingHelperBase($argv[1], $key["privatekey"], APP_ID);
 $base->setLanguage('de');
