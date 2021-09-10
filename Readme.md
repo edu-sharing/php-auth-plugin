@@ -13,7 +13,7 @@ The registration is handled by providing a public key to the repository (via an 
 
 You can create such a registration file by calling
 `php example/example.php`. It will create a private.key file (make sure to savely store this file and never expose it to clients!).
-The generated properties.xml file can than be used to register the app in edu-sharing.
+The generated properties.xml file can than be used to register the app in edu-sharing. (see Pre-Requisites)
 
 ### Basic workflow & features
 
