@@ -44,6 +44,12 @@ if ($action === 'BASE_URL') {
         $postData->resourceId,
         $postData->nodeId
     );
+} else if ($action === 'DELETE_USAGE') {
+    $nodeHelper = new EduSharingNodeHelper($base);
+    $nodeHelper->deleteUsage(
+        $postData->nodeId,
+        $postData->usageId
+    );
 } else if ($action === 'TICKET') {
     $authHelper = new EduSharingAuthHelper($base);
     $ticket = $authHelper->getTicketForUser(USERNAME);

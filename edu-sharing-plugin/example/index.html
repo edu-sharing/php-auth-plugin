@@ -39,6 +39,7 @@
             if(localStorage.getItem('usage')) {
                 const usage = JSON.parse(localStorage.getItem('usage'));
                 document.querySelector('#usage').style.display = null;
+                document.querySelector('#delete-usage').style.display = null;
                 document.querySelector('#usage').innerHTML = JSON.stringify(usage, null, 4);
                 usage.action = 'GET_NODE';
                 const render = await fetchAPI(usage)
@@ -54,6 +55,18 @@
                 containerId: 'my_sample_page_1',
                 resourceId: Math.random()
             });
+        }
+        async function deleteUsage(nodeId) {
+            const usage = JSON.parse(localStorage.getItem('usage'));
+            await fetchAPI({
+                action: 'DELETE_USAGE',
+                nodeId: usage.nodeId,
+                usageId: usage.usageId
+            });
+            localStorage.removeItem('usage');
+            document.querySelector('#render').style.display = 'none';
+            document.querySelector('#usage').style.display = 'none';
+            document.querySelector('#delete-usage').style.display = 'none';
         }
         async function fetchAPI(data) {
             return new Promise((resolve, reject) => {
@@ -98,6 +111,9 @@
     <button onclick="openEduSharing()">Open edu-sharing & select node</button>
 </div>
 <pre id="usage" style="display: none"></pre>
+<div id="delete-usage" style="display: none">
+    <button onclick="deleteUsage()">Delete current Usage</button>
+</div>
 <div id="render"></div>
 
 </body>
