@@ -21,10 +21,15 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
                 'Accept: application/json',
                 'Content-Type: application/json',
             ],
-            CURLOPT_RETURNTRANSFER => 1
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_TIMEOUT => 5
         ]);
         $data = json_decode(curl_exec($curl), true);
         curl_close($curl);
+        if ( is_null( $data ) ) {
+            throw new Exception( 'No answer from repository. Possibly a timeout while trying to connect' );
+        }
         if($data['statusCode'] !== 'OK') {
             throw new Exception('The given ticket is not valid anymore');
         }
@@ -45,7 +50,9 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
             CURLOPT_POST => 1,
             CURLOPT_FAILONERROR => false,
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => $this->getSignatureHeaders($username)
+            CURLOPT_HTTPHEADER => $this->getSignatureHeaders($username),
+            CURLOPT_CONNECTTIMEOUT => 5,
+            CURLOPT_TIMEOUT => 5
         ]);
         $data = json_decode(curl_exec($curl), true);
         $err     = curl_errno( $curl );
@@ -54,6 +61,8 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
         if ($err === 0 && $info["http_code"] === 200 && $data['userId'] === $username) {
             return $data['ticket'];
         } else {
+            if ( is_null( $data ) )
+                $data = [ 'error' => 'No answer from repository. Possibly a timeout while trying to connect' ];
             throw new Exception('edu-sharing ticket could not be retrieved: HTTP-Code ' .
                 $info["http_code"] . ': ' . $data['error']);
         }
