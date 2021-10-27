@@ -51,7 +51,10 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
         $err     = curl_errno( $curl );
         $info = curl_getinfo($curl);
         curl_close($curl);
-        if ($err === 0 && $info["http_code"] === 200 && $data['userId'] === $username) {
+        print_r($data);
+        if ($err === 0 && $info["http_code"] === 200 && ($data['userId'] === $username ||
+                substr($data['userId'], 0, strlen($username) + 1) === $username . '@'
+            )) {
             return $data['ticket'];
         } else {
             throw new Exception('edu-sharing ticket could not be retrieved: HTTP-Code ' .
