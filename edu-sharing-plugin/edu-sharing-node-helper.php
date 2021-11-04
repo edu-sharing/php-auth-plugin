@@ -171,6 +171,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         curl_close($curl);
         if ($err === 0 && $info["http_code"] === 200) {
 
+        } else if ($info["http_code"] === 404) {
+            throw new UsageDeletedException('the given usage is already deleted or does not exist');
         } else {
             throw new Exception('deleting usage failed ' .
                 $info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
