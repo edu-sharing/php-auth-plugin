@@ -23,9 +23,10 @@ $base = new EduSharingHelperBase(BASE_URL, $key["privatekey"], APP_ID);
 $postData = json_decode(file_get_contents('php://input'));
 $action = $postData->action;
 $result = null;
-if ($action === 'BASE_URL') {
-    $result = BASE_URL;
-} else if ($action === 'GET_NODE') {
+try {
+    if ($action === 'BASE_URL') {
+        $result = BASE_URL;
+    } else if ($action === 'GET_NODE') {
         $nodeHelper = new EduSharingNodeHelper($base);
         $result = $nodeHelper->getNodeByUsage(
             new Usage(
@@ -36,24 +37,26 @@ if ($action === 'BASE_URL') {
                 $postData->usageId
             )
         );
-} else if ($action === 'CREATE_USAGE') {
-    $nodeHelper = new EduSharingNodeHelper($base);
-    $result = $nodeHelper->createUsage(
-        $postData->ticket,
-        $postData->containerId,
-        $postData->resourceId,
-        $postData->nodeId
-    );
-} else if ($action === 'DELETE_USAGE') {
-    $nodeHelper = new EduSharingNodeHelper($base);
-    $nodeHelper->deleteUsage(
-        $postData->nodeId,
-        $postData->usageId
-    );
-} else if ($action === 'TICKET') {
-    $authHelper = new EduSharingAuthHelper($base);
-    $ticket = $authHelper->getTicketForUser(USERNAME);
-    $result = $ticket;
+    } else if ($action === 'CREATE_USAGE') {
+        $nodeHelper = new EduSharingNodeHelper($base);
+        $result = $nodeHelper->createUsage(
+            $postData->ticket,
+            $postData->containerId,
+            $postData->resourceId,
+            $postData->nodeId
+        );
+    } else if ($action === 'DELETE_USAGE') {
+        $nodeHelper = new EduSharingNodeHelper($base);
+        $nodeHelper->deleteUsage(
+            $postData->nodeId,
+            $postData->usageId
+        );
+    } else if ($action === 'TICKET') {
+        $authHelper = new EduSharingAuthHelper($base);
+        $ticket = $authHelper->getTicketForUser(USERNAME);
+        $result = $ticket;
+    }
+    echo json_encode($result);
+}catch(UsageDeletedException $e) {
+    http_response_code(404);
 }
-
-echo json_encode($result);

@@ -6,6 +6,9 @@ class DisplayMode {
     const Embed = 'embed';
     const Dynamic = 'dynamic';
 }
+class UsageDeletedException extends Exception {
+
+}
 class Usage {
     public $nodeId;
     public $nodeVersion;
@@ -132,6 +135,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         $info = curl_getinfo($curl);
         if ($err === 0 && $info["http_code"] === 200) {
             return $data;
+        } else if ($info["http_code"] === 403) {
+            throw new UsageDeletedException('the given usage is deleted and the requested node is not public');
         } else {
             throw new Exception('fetching node by usage failed ' .
                 $info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
