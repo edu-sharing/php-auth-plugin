@@ -59,4 +59,7 @@ try {
     echo json_encode($result);
 }catch(UsageDeletedException $e) {
     http_response_code(404);
+}catch(NodeDeletedException $e) {
+    http_response_code(404);
 }
+

@@ -58,11 +58,17 @@
         }
         async function deleteUsage(nodeId) {
             const usage = JSON.parse(localStorage.getItem('usage'));
-            await fetchAPI({
-                action: 'DELETE_USAGE',
-                nodeId: usage.nodeId,
-                usageId: usage.usageId
-            });
+            try {
+                await fetchAPI({
+                    action: 'DELETE_USAGE',
+                    nodeId: usage.nodeId,
+                    usageId: usage.usageId
+                });
+            } catch(e) {
+                if(!confirm('Delete local storage anyway?')) {
+                    return;
+                }
+            }
             localStorage.removeItem('usage');
             document.querySelector('#render').style.display = 'none';
             document.querySelector('#usage').style.display = 'none';

@@ -9,6 +9,9 @@ class DisplayMode {
 class UsageDeletedException extends Exception {
 
 }
+class NodeDeletedException extends Exception {
+
+}
 class Usage {
     public $nodeId;
     public $nodeVersion;
@@ -137,6 +140,9 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             return $data;
         } else if ($info["http_code"] === 403) {
             throw new UsageDeletedException('the given usage is deleted and the requested node is not public');
+        } else if ($info["http_code"] === 404){
+            throw new NodeDeletedException('the given node is already deleted ' .
+                $info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
         } else {
             throw new Exception('fetching node by usage failed ' .
                 $info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
