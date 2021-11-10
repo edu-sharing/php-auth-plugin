@@ -1,6 +1,27 @@
 <?php
 require_once "edu-sharing-helper-abstract.php";
 
+class AppAuthException extends Exception {
+    public function __construct($message = "")
+    {
+        parent::__construct($this->getExplanation($message));
+    }
+    private function getExplanation($message) {
+        $SOAP_ERRORS = [
+            "the timestamp sent by your client was too old. Please check the clocks of both servers or increase the value 'message_offset_ms'/'message_send_offset_ms' in the app properties file"
+            => ["MESSAGE SEND TIMESTAMP TO OLD", "MESSAGE SEND TIMESTAMP newer than MESSAGE ARRIVED TIMESTAMP"],
+            "The ip your client is using for request is not known by the repository. Please add the ip into your 'host_aliases' app properties file"
+            => ["INVALID_HOST"]
+        ];
+        foreach($SOAP_ERRORS as $desc => $keys) {
+            foreach($keys as $k) {
+                if(strpos($message, $k) !== FALSE)
+                return $desc . '(' . $message . ')';
+            }
+        }
+        return $message;
+    }
+}
 class EduSharingAuthHelper extends EduSharingHelperAbstract  {
 
     /**
@@ -45,6 +66,7 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
      * @throws Exception
      */
     public function getTicketForUser(string $username) {
+
         $curl = curl_init($this->base->baseUrl . '/rest/authentication/v1/appauth/' . rawurlencode($username));
         curl_setopt_array($curl, [
             CURLOPT_POST => 1,
@@ -65,8 +87,11 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
         } else {
             if ( is_null( $data ) )
                 $data = [ 'error' => 'No answer from repository. Possibly a timeout while trying to connect' ];
+            if($data['message']) {
+                throw new AppAuthException($data['message']);
+            }
             throw new Exception('edu-sharing ticket could not be retrieved: HTTP-Code ' .
-                $info["http_code"] . ': ' . $data['error']);
+                $info["http_code"] . ': ' . $data['error'] . '/' . $data['message']);
         }
     }
 }

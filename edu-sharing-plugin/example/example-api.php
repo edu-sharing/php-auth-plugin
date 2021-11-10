@@ -59,7 +59,16 @@ try {
     echo json_encode($result);
 }catch(UsageDeletedException $e) {
     http_response_code(404);
+    echo $e->getMessage();
 }catch(NodeDeletedException $e) {
     http_response_code(404);
+    echo $e->getMessage();
+}catch(AppAuthException $e) {
+    http_response_code(401);
+    echo $e->getMessage();
+}catch(Exception $e) {
+    http_response_code(500);
+    echo $e->getMessage();
 }
+
 

@@ -83,13 +83,13 @@
                         if (xhr.status === 200) {
                             resolve(JSON.parse(xhr.response));
                         } else {
-                            alert(xhr.statusText);
+                            alert(xhr.statusText + ": " + xhr.responseText);
                             reject(xhr.statusText);
                         }
                     }
                 };
                 xhr.onerror = function (e) {
-                    alert(xhr.statusText);
+                    alert(xhr.statusText + ": " + xhr.responseText);
                 };
                 xhr.send(JSON.stringify(data));
             });
