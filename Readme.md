@@ -5,6 +5,7 @@ This library is intented for 3rd party systems (e.g. LMS, CMS) to interconnect w
 
 ## Pre-Requisites
 Every 3rd party system will need to registered in edu-sharing first.
+edu-sharing 6.0 or greater must be used in order to make use of this library.
 
 To register systems, login in your edu-sharing as an administrator, switch to Admin-Tools -> Remote-Systems
 
