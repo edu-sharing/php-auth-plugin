@@ -1,5 +1,7 @@
 <?php
 
+require_once 'curl.php';
+
 class EduSharingHelper {
     /**
      * generate a new key pair (private + public) to be registered in the edu-sharing repository

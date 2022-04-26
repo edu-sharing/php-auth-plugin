@@ -1,6 +1,7 @@
 <?php
 
 abstract class EduSharingHelperAbstract {
+
     protected $base;
     public function __construct(
         EduSharingHelperBase $base
@@ -17,7 +18,6 @@ abstract class EduSharingHelperAbstract {
     public function getRESTAuthenticationHeader(string $ticket) {
         return 'Authorization: EDU-TICKET ' . $ticket;
     }
-
 
     protected function getSignatureHeaders(
         string $signString,

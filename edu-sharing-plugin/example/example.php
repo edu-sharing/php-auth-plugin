@@ -40,10 +40,14 @@ if(count($argv) !== 3) {
     die("No node id given. Add a 3rd parameter to test create + fetching of nodes by usage");
 }
 $nodeHelper = new EduSharingNodeHelper($base);
-$usage = $nodeHelper->createUsage($ticket, '1', '1', $argv[2]);
-echo "Usage create result:\n";
+$containerId = rand(1000,9999);
+$resourceId = rand(1000,9999);
+$usage = $nodeHelper->createUsage($ticket, $containerId, $resourceId, $argv[2]);
+echo "\nUsage create result:\n";
 print_r($usage);
-
+echo "\nGet usage id by parameters:\n";
+$usageId = $nodeHelper->getUsageIdByParameters($ticket, $argv[2], $containerId, $resourceId);
+print_r($usageId);
 $node = $nodeHelper->getNodeByUsage($usage);
-echo "Get node by usage:\n";
+echo "\nGet node by usage:\n";
 print_r($node["node"]["name"]);

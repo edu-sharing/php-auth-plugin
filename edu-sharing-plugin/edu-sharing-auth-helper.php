@@ -35,8 +35,7 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
      * Thrown if the ticket is not valid anymore
      */
     public function getTicketAuthenticationInfo(string $ticket) {
-        $curl = curl_init($this->base->baseUrl . '/rest/authentication/v1/validateSession');
-        curl_setopt_array($curl, [
+        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/authentication/v1/validateSession', [
             CURLOPT_HTTPHEADER => [
                 $this->getRESTAuthenticationHeader($ticket),
                 'Accept: application/json',
@@ -46,8 +45,7 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT => 5
         ]);
-        $data = json_decode(curl_exec($curl), true);
-        curl_close($curl);
+        $data = json_decode($curl->content, true);
         if ( is_null( $data ) ) {
             throw new Exception( 'No answer from repository. Possibly a timeout while trying to connect' );
         }
@@ -67,8 +65,7 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
      */
     public function getTicketForUser(string $username) {
 
-        $curl = curl_init($this->base->baseUrl . '/rest/authentication/v1/appauth/' . rawurlencode($username));
-        curl_setopt_array($curl, [
+        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/authentication/v1/appauth/' . rawurlencode($username), [
             CURLOPT_POST => 1,
             CURLOPT_FAILONERROR => false,
             CURLOPT_RETURNTRANSFER => 1,
@@ -76,11 +73,8 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT => 5
         ]);
-        $data = json_decode(curl_exec($curl), true);
-        $err     = curl_errno( $curl );
-        $info = curl_getinfo($curl);
-        curl_close($curl);
-        if ($err === 0 && $info["http_code"] === 200 && ($data['userId'] === $username ||
+        $data = json_decode($curl->content, true);
+        if ($curl->error === 0 && $curl->info["http_code"] === 200 && ($data['userId'] === $username ||
                 substr($data['userId'], 0, strlen($username) + 1) === $username . '@'
             )) {
             return $data['ticket'];
@@ -91,7 +85,7 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
                 throw new AppAuthException($data['message']);
             }
             throw new Exception('edu-sharing ticket could not be retrieved: HTTP-Code ' .
-                $info["http_code"] . ': ' . $data['error'] . '/' . $data['message']);
+                $curl->info["http_code"] . ': ' . $data['error'] . '/' . $data['message']);
         }
     }
 }

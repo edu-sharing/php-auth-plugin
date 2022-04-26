@@ -5,7 +5,7 @@ class EduSharingHelperBase {
     public $privateKey;
     public $appId;
     public $language = 'de';
-
+    private $curlHandler;
     /**
      * @param string $baseUrl
      * The base url to your repository in the format "http://<host>/edu-sharing"
@@ -25,6 +25,15 @@ class EduSharingHelperBase {
         $this->baseUrl=$baseUrl;
         $this->privateKey=$privateKey;
         $this->appId=$appId;
+        $this->curlHandler=new DefaultCurlHandler();
+    }
+
+    public function registerCurlHandler(CurlHandler $handler) {
+        $this->curlHandler = $handler;
+    }
+
+    public function handleCurlRequest(string $url, array $curlOptions) {
+        return $this->curlHandler->handleCurlRequest($url, $curlOptions);
     }
 
     public function setLanguage(string $language) {

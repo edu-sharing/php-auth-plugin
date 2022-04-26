@@ -59,10 +59,9 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         string $nodeId,
         string $nodeVersion = null
     ) {
-        $curl = curl_init($this->base->baseUrl . '/rest/usage/v1/usages/repository/-home-');
         $headers = $this->getSignatureHeaders($ticket);
         $headers[] = $this->getRESTAuthenticationHeader($ticket);
-        curl_setopt_array($curl, [
+        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/repository/-home-', [
             CURLOPT_FAILONERROR => false,
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => json_encode([
@@ -75,11 +74,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER => $headers
         ]);
-        $data = json_decode(curl_exec($curl), true);
-        $err     = curl_errno( $curl );
-        $info = curl_getinfo($curl);
-        curl_close($curl);
-        if ($err === 0 && $info["http_code"] === 200) {
+        $data = json_decode($curl->content, true);
+        if ($curl->error === 0 && $curl->info["http_code"] === 200) {
             return new Usage(
                 $data['parentNodeId'],
                 $nodeVersion,
@@ -89,9 +85,50 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             );
         } else {
             throw new Exception('creating usage failed ' .
-                $info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
         }
 
+    }
+
+    /**
+     * @DEPRECATED
+     * Returns the id of an usage object for a given node, container & resource id of that usage
+     * This is only relevant for legacy plugins which do not store the usage id and need to fetch it in order to delete an usage
+     * @param string $ticket
+     * A ticket with the user session who is creating this usage
+     * @param string $containerId
+     * A unique page / course id this usage refers to inside your system (e.g. a database id of the page you include the usage)
+     * @param string $resourceId
+     * The individual resource id on the current page or course this object refers to
+     * (you may enumerate or use unique UUID's)
+     * @return string
+     * The id of the usage, or NULL if no usage with the given data was found
+     */
+    public function getUsageIdByParameters(
+        $ticket,
+        $nodeId,
+        $containerId,
+        $resourceId
+    ){
+        $headers = $this->getSignatureHeaders($ticket);
+        $headers[] = $this->getRESTAuthenticationHeader($ticket);
+        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/node/' . rawurlencode($nodeId), [
+            CURLOPT_FAILONERROR => false,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HTTPHEADER => $headers
+        ]);
+        $data = json_decode($curl->content, true);
+        if ($curl->error === 0 && $curl->info["http_code"] === 200) {
+            foreach($data["usages"] as $usage) {
+                if($usage["appId"] == $this->base->appId && $usage["courseId"] == $containerId && $usage["resourceId"] == $resourceId) {
+                    return $usage["nodeId"];
+                }
+            }
+            return null;
+        } else {
+            throw new Exception('fetching usage list for course failed ' .
+                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+        }
     }
 
     /**
@@ -119,33 +156,31 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         if($usage->nodeVersion) {
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
-        $curl = curl_init($url);
 
         $headers = $this->getSignatureHeaders($usage->usageId);
         $headers[] = 'X-Edu-Usage-Node-Id: ' . $usage->nodeId;
         $headers[] = 'X-Edu-Usage-Course-Id: ' . $usage->containerId;
         $headers[] = 'X-Edu-Usage-Resource-Id: ' . $usage->resourceId;
 
-        curl_setopt_array($curl, [
+        $curl = $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR => false,
             CURLOPT_POST => 1,
             CURLOPT_POSTFIELDS => json_encode($renderingParams),
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER => $headers
         ]);
-        $data = json_decode(curl_exec($curl), true);
-        $err     = curl_errno( $curl );
-        $info = curl_getinfo($curl);
-        if ($err === 0 && $info["http_code"] === 200) {
+
+        $data = json_decode($curl->content, true);
+        if ($curl->error === 0 && $curl->info["http_code"] === 200) {
             return $data;
-        } else if ($info["http_code"] === 403) {
+        } else if ($curl->info["http_code"] === 403) {
             throw new UsageDeletedException('the given usage is deleted and the requested node is not public');
-        } else if ($info["http_code"] === 404){
+        } else if ($curl->info["http_code"] === 404){
             throw new NodeDeletedException('the given node is already deleted ' .
-                $info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
         } else {
             throw new Exception('fetching node by usage failed ' .
-                $info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
         }
     }
 
@@ -163,25 +198,21 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         string $nodeId,
         string $usageId
     ) {
-        $curl = curl_init($this->base->baseUrl . '/rest/usage/v1/usages/node/' . rawurlencode($nodeId) . '/' . rawurlencode($usageId));
         $headers = $this->getSignatureHeaders($nodeId.$usageId);
-        curl_setopt_array($curl, [
+        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/node/' . rawurlencode($nodeId) . '/' . rawurlencode($usageId), [
             CURLOPT_FAILONERROR => false,
             CURLOPT_CUSTOMREQUEST => 'DELETE',
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER => $headers
         ]);
-        $data = json_decode(curl_exec($curl), true);
-        $err     = curl_errno( $curl );
-        $info = curl_getinfo($curl);
-        curl_close($curl);
-        if ($err === 0 && $info["http_code"] === 200) {
+        $data = json_decode($curl->content, true);
+        if ($curl->error === 0 && $curl->info["http_code"] === 200) {
 
-        } else if ($info["http_code"] === 404) {
+        } else if ($curl->info["http_code"] === 404) {
             throw new UsageDeletedException('the given usage is already deleted or does not exist');
         } else {
             throw new Exception('deleting usage failed ' .
-                $info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
         }
 
     }

@@ -70,3 +70,21 @@ In edu-sharing, with appropriate permissions, right click and choose "Invite". I
 In theory - no, since the element is accessible for everyone, the usage is not required from a permission standpoint.
 
 However, we use the usage for tracking/statistics purposes. Also, the node may get private at some point in the future which would break any remote embeddings. Thus, you should always create an usage.  
+
+## Advanced usage
+
+### Custom curl handler
+In case the system you're working with already provides a curl implementation (e.g. for global configuration of proxies, redirects or other features), you might want to route all requests from this library through the existing implementation.
+
+You can attach a custom curl handler in this case. Please note that you must do this directly after instantiating the base library, otherwise some requests might already have been send.
+
+````php
+$base->registerCurlHandler(new class extends CurlHandler {
+
+    public function handleCurlRequest(string $url, array $curlOptions): CurlResult
+    {
+       return new CurlResult('', 0, []);
+    }
+});
+````
+Take a look at the `curl.php` file for more details and an example.
