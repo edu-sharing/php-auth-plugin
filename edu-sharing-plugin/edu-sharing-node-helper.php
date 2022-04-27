@@ -62,17 +62,17 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         $headers = $this->getSignatureHeaders($ticket);
         $headers[] = $this->getRESTAuthenticationHeader($ticket);
         $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/repository/-home-', [
-            CURLOPT_FAILONERROR => false,
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => json_encode([
+            'CURLOPT_FAILONERROR' => false,
+            'CURLOPT_POST' => 1,
+            'CURLOPT_POSTFIELDS' => json_encode([
                 'appId' => $this->base->appId,
                 'courseId' => $containerId,
                 'resourceId' => $resourceId,
                 'nodeId' => $nodeId,
                 'nodeVersion' => $nodeVersion,
             ]),
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => $headers
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_HTTPHEADER' => $headers
         ]);
         $data = json_decode($curl->content, true);
         if ($curl->error === 0 && $curl->info["http_code"] === 200) {
@@ -113,9 +113,9 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         $headers = $this->getSignatureHeaders($ticket);
         $headers[] = $this->getRESTAuthenticationHeader($ticket);
         $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/node/' . rawurlencode($nodeId), [
-            CURLOPT_FAILONERROR => false,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => $headers
+            'CURLOPT_FAILONERROR' => false,
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_HTTPHEADER' => $headers
         ]);
         $data = json_decode($curl->content, true);
         if ($curl->error === 0 && $curl->info["http_code"] === 200) {
@@ -163,11 +163,11 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         $headers[] = 'X-Edu-Usage-Resource-Id: ' . $usage->resourceId;
 
         $curl = $this->base->handleCurlRequest($url, [
-            CURLOPT_FAILONERROR => false,
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => json_encode($renderingParams),
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => $headers
+            'CURLOPT_FAILONERROR' => false,
+            'CURLOPT_POST' => 1,
+            'CURLOPT_POSTFIELDS' => json_encode($renderingParams),
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_HTTPHEADER' => $headers
         ]);
 
         $data = json_decode($curl->content, true);
@@ -200,10 +200,10 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
     ) {
         $headers = $this->getSignatureHeaders($nodeId.$usageId);
         $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/node/' . rawurlencode($nodeId) . '/' . rawurlencode($usageId), [
-            CURLOPT_FAILONERROR => false,
-            CURLOPT_CUSTOMREQUEST => 'DELETE',
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => $headers
+            'CURLOPT_FAILONERROR' => false,
+            'CURLOPT_CUSTOMREQUEST' => 'DELETE',
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_HTTPHEADER' => $headers
         ]);
         $data = json_decode($curl->content, true);
         if ($curl->error === 0 && $curl->info["http_code"] === 200) {

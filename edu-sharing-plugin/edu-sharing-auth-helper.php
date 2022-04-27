@@ -36,14 +36,14 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
      */
     public function getTicketAuthenticationInfo(string $ticket) {
         $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/authentication/v1/validateSession', [
-            CURLOPT_HTTPHEADER => [
+            'CURLOPT_HTTPHEADER' => [
                 $this->getRESTAuthenticationHeader($ticket),
                 'Accept: application/json',
                 'Content-Type: application/json',
             ],
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_TIMEOUT => 5
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_CONNECTTIMEOUT' => 5,
+            'CURLOPT_TIMEOUT' => 5
         ]);
         $data = json_decode($curl->content, true);
         if ( is_null( $data ) ) {
@@ -66,12 +66,12 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
     public function getTicketForUser(string $username) {
 
         $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/authentication/v1/appauth/' . rawurlencode($username), [
-            CURLOPT_POST => 1,
-            CURLOPT_FAILONERROR => false,
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => $this->getSignatureHeaders($username),
-            CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_TIMEOUT => 5
+            'CURLOPT_POST' => 1,
+            'CURLOPT_FAILONERROR' => false,
+            'CURLOPT_RETURNTRANSFER' => 1,
+            'CURLOPT_HTTPHEADER' => $this->getSignatureHeaders($username),
+            'CURLOPT_CONNECTTIMEOUT' => 5,
+            'CURLOPT_TIMEOUT' => 5
         ]);
         $data = json_decode($curl->content, true);
         if ($curl->error === 0 && $curl->info["http_code"] === 200 && ($data['userId'] === $username ||
