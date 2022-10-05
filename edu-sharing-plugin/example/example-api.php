@@ -1,6 +1,7 @@
 <?php
 define('APP_ID', 'sample-app');
-define('BASE_URL', 'http://localhost:8080/edu-sharing');
+define('BASE_URL_INTERNAL', getenv('BASE_URL_INTERNAL'));
+define('BASE_URL_EXTERNAL', getenv('BASE_URL_EXTERNAL'));
 define('USERNAME', 'tester');
 
 
@@ -19,13 +20,13 @@ if(!$privatekey) {
     $key["privatekey"] = $privatekey;
 }
 // init the base class instance we use for all helpers
-$base = new EduSharingHelperBase(BASE_URL, $key["privatekey"], APP_ID);
+$base = new EduSharingHelperBase(BASE_URL_INTERNAL, $key["privatekey"], APP_ID);
 $postData = json_decode(file_get_contents('php://input'));
 $action = $postData->action;
 $result = null;
 try {
     if ($action === 'BASE_URL') {
-        $result = BASE_URL;
+        $result = BASE_URL_EXTERNAL;
     } else if ($action === 'GET_NODE') {
         $nodeHelper = new EduSharingNodeHelper($base);
         $result = $nodeHelper->getNodeByUsage(

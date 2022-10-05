@@ -42,6 +42,8 @@ Persist the data you receive from this method to display it later.
 
 A full working example can be viewed if you open the `example/index.html` (you need to register your app first, see above)
 
+Check the `docker-compose.yml` file for the BASE_URL variables. Then use `docker compose up -d` inside the `example` folder and open `http://localhost:8080/example`.  
+
 ### 2. Rendering / Displaying a previously embeded object
 If you previously generated an usage for an object, you can fetch it for displaying / rendering
 Simply call `getNodeByUsage` including the usage data you received previously.

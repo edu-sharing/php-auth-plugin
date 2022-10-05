@@ -79,8 +79,9 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
             )) {
             return $data['ticket'];
         } else {
-            if ( is_null( $data ) )
-                $data = [ 'error' => 'No answer from repository. Possibly a timeout while trying to connect to ' . $this->base->baseUrl ];
+            if ( is_null( $data ) ) {
+                $data = ['error' => 'No answer from repository. Possibly a timeout while trying to connect to "' . $this->base->baseUrl . '"'];
+            }
             if(isset($data['message'])) {
                 throw new AppAuthException($data['message']);
             }
