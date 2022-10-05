@@ -80,12 +80,12 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract  {
             return $data['ticket'];
         } else {
             if ( is_null( $data ) )
-                $data = [ 'error' => 'No answer from repository. Possibly a timeout while trying to connect' ];
-            if($data['message']) {
+                $data = [ 'error' => 'No answer from repository. Possibly a timeout while trying to connect to ' . $this->base->baseUrl ];
+            if(isset($data['message'])) {
                 throw new AppAuthException($data['message']);
             }
             throw new Exception('edu-sharing ticket could not be retrieved: HTTP-Code ' .
-                $curl->info["http_code"] . ': ' . $data['error'] . '/' . $data['message']);
+                $curl->info["http_code"] . ': ' . $data['error'] . '/' . @$data['message']);
         }
     }
 }

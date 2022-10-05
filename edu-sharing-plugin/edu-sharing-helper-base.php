@@ -44,7 +44,7 @@ class EduSharingHelperBase {
         $pkeyid = openssl_get_privatekey($this->privateKey);
         openssl_sign($toSign, $signature, $pkeyid);
         $signature = base64_encode($signature);
-        openssl_free_key($pkeyid);
+        @openssl_free_key($pkeyid);
         return $signature;
     }
 
