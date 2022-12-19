@@ -51,3 +51,6 @@ print_r($usageId);
 $node = $nodeHelper->getNodeByUsage($usage);
 echo "\nGet node by usage:\n";
 print_r($node["node"]["name"]);
+
+echo "\nDeleting usage.\n";
+$nodeHelper->deleteUsage($argv[2], $usage->usageId);
