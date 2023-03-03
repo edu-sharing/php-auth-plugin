@@ -29,6 +29,7 @@ if(count($argv) < 2) {
 // init the base class instance we use for all helpers
 $base = new EduSharingHelperBase($argv[1], $key['privatekey'], APP_ID);
 $base->setLanguage('de');
+$base->verifyCompatibility();
 
 // authenticating (getting a ticket) and validating the given ticket
 $authHelper = new EduSharingAuthHelper($base);
