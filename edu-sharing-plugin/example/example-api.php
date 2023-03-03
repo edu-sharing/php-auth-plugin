@@ -34,6 +34,7 @@ if($postData) {
 }
 $result = null;
 try {
+    $base->verifyCompatibility();
     if ($action === 'BASE_URL') {
         $result = BASE_URL_EXTERNAL;
     } else if ($action === 'GET_NODE') {

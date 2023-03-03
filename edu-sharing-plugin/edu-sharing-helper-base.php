@@ -51,4 +51,25 @@ class EduSharingHelperBase {
         return $signature;
     }
 
+    /**
+     * will throw an exception if the given edu-sharing api is not compatible with this library version
+     * i.e. you could call this in your configuration / setup
+     */
+    function verifyCompatibility() {
+        $MIN_VERSION = "8.0";
+        $result = json_decode($this->curlHandler->handleCurlRequest($this->baseUrl . '/rest/_about', [
+            CURLOPT_HTTPHEADER => [
+                'Accept: application/json',
+                'Content-Type: application/json',
+            ],
+            CURLOPT_FAILONERROR => false,
+            CURLOPT_RETURNTRANSFER => 1
+        ])->content,
+            true
+        );
+        if(version_compare($result["version"]["repository"], $MIN_VERSION) < 0) {
+            throw new Exception("The edu-sharing version of the target repository is too low. Minimum required is " . $MIN_VERSION . "\n" . print_r($result["version"], true));
+        }
+    }
+
 }
