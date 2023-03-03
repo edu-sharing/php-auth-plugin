@@ -21,14 +21,22 @@ if(!$privatekey) {
 }
 // init the base class instance we use for all helpers
 $base = new EduSharingHelperBase(BASE_URL_INTERNAL, $key["privatekey"], APP_ID);
+$nodeHelper = new EduSharingNodeHelper($base,
+    new EduSharingNodeHelperConfig(
+        new UrlHandling(true, 'example-api.php?action=REDIRECT')
+    )
+);
 $postData = json_decode(file_get_contents('php://input'));
-$action = $postData->action;
+if($postData) {
+    $action = $postData->action;
+} else {
+    $action = $_GET["action"];
+}
 $result = null;
 try {
     if ($action === 'BASE_URL') {
         $result = BASE_URL_EXTERNAL;
     } else if ($action === 'GET_NODE') {
-        $nodeHelper = new EduSharingNodeHelper($base);
         $result = $nodeHelper->getNodeByUsage(
             new Usage(
                 $postData->nodeId,
@@ -38,8 +46,20 @@ try {
                 $postData->usageId
             )
         );
+    } else if ($action === 'REDIRECT') {
+        // in a real application, you should check if the user is actually allowed to access this usage!
+        $url = $nodeHelper->getRedirectUrl(
+            $_GET["mode"],
+            new Usage(
+                $_GET["nodeId"],
+                isset($_GET["nodeVersion"]) ? $_GET["nodeVersion"] : null,
+                $_GET["containerId"],
+                $_GET["resourceId"],
+                $_GET["usageId"],
+            )
+        );
+        header("Location: $url");
     } else if ($action === 'CREATE_USAGE') {
-        $nodeHelper = new EduSharingNodeHelper($base);
         $result = $nodeHelper->createUsage(
             $postData->ticket,
             $postData->containerId,
@@ -47,7 +67,6 @@ try {
             $postData->nodeId
         );
     } else if ($action === 'DELETE_USAGE') {
-        $nodeHelper = new EduSharingNodeHelper($base);
         $nodeHelper->deleteUsage(
             $postData->nodeId,
             $postData->usageId

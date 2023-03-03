@@ -29,7 +29,50 @@ class Usage {
     }
 
 }
+class UrlHandling {
+    /**
+     * configure if urls included in the responses should be automatically configured to redirect the user to edu-sharing
+     * When set to false, you need to handle Download + Replacing of LMS_INLINE_HELPER_SCRIPT by yourself
+     */
+    public $enabled;
+    public $endpointURL;
+
+    /**
+     * @param $enabled
+     * @param $endpointURL
+     */
+    public function __construct($enabled, $endpointURL)
+    {
+        $this->enabled = $enabled;
+        $this->endpointURL = $endpointURL;
+    }
+
+
+}
+class EduSharingNodeHelperConfig {
+    public UrlHandling $urlHandling;
+
+    /**
+     * @param UrlHandling $urlHandling
+     */
+    public function __construct(UrlHandling $urlHandling)
+    {
+        $this->urlHandling = $urlHandling;
+    }
+
+
+}
 class EduSharingNodeHelper extends EduSharingHelperAbstract  {
+    private EduSharingNodeHelperConfig $config;
+
+    public function __construct(
+        EduSharingHelperBase $base,
+        EduSharingNodeHelperConfig $config
+    ) {
+        parent::__construct($base);
+        $this->config = $config;
+    }
+
     /**
      * creates a usage for a given node
      * The given usage can later be used to fetch this node REGARDLESS of the actual user
@@ -147,7 +190,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      */
     public function getNodeByUsage(
         Usage $usage,
-        $displayMode = DisplayMode::Inline,
+              $displayMode = DisplayMode::Inline,
         array $renderingParams = null
     )
     {
@@ -157,10 +200,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
 
-        $headers = $this->getSignatureHeaders($usage->usageId);
-        $headers[] = 'X-Edu-Usage-Node-Id: ' . $usage->nodeId;
-        $headers[] = 'X-Edu-Usage-Course-Id: ' . $usage->containerId;
-        $headers[] = 'X-Edu-Usage-Resource-Id: ' . $usage->resourceId;
+        $headers = $this->getUsageSignatureHeaders($usage);
 
         $curl = $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR => false,
@@ -171,6 +211,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         ]);
 
         $data = json_decode($curl->content, true);
+        $this->handleURLMapping($data, $usage);
         if ($curl->error === 0 && $curl->info["http_code"] === 200) {
             return $data;
         } else if ($curl->info["http_code"] === 403) {
@@ -215,5 +256,62 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
                 $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
         }
 
+    }
+
+    private function handleURLMapping(&$data, Usage $usage)
+    {
+        if(!$this->config || !$this->config->urlHandling->enabled) {
+            return;
+        }
+        if(isset($data["node"])) {
+            $params =
+                "&usageId=" . urlencode($usage->usageId) .
+                "&nodeId=" . urlencode($usage->nodeId) .
+                "&resourceId=" . urlencode($usage->resourceId) .
+                "&containerId=" . urlencode($usage->containerId);
+            if($usage->nodeVersion) {
+                $params .= "&nodeVersion=" . urlencode($usage->nodeVersion);
+            }
+            $endpointBase = $this->config->urlHandling->endpointURL . (strpos($this->config->urlHandling->endpointURL, "?" === -1) ? "?" : "&");
+            $contentUrl = $endpointBase . "mode=content" . $params;
+            $data["url"] = [
+                "content" => $contentUrl,
+                "download" => $endpointBase . "mode=download" . $params
+            ];
+            $data["detailsSnippet"] = str_replace("{{{LMS_INLINE_HELPER_SCRIPT}}}", $contentUrl, $data["detailsSnippet"]);
+        }
+    }
+
+    public function getRedirectUrl(string $mode, Usage $usage)
+    {
+        $headers = $this->getUsageSignatureHeaders($usage);
+        $node = $this->getNodeByUsage($usage);
+        $params = "";
+        foreach($headers as $header) {
+            if(substr($header, 0, 2) !== "X-"){
+                continue;
+            }
+            $header = explode(": ", $header);
+            $params .= "&" . $header[0] . "=" . urlencode($header[1]);
+        }
+        if($mode === 'content') {
+            $url = $node["node"]["content"]["url"];
+            $params .= "&closeOnBack=true";
+        } else if ($mode === 'download') {
+            $url = $node["node"]["downloadUrl"];
+        } else {
+            throw new Exception("Unknown parameter for mode: " . $mode);
+        }
+        return $url . (strpos($url, "?") === false ? "?" : "") . $params;
+
+    }
+
+    private function getUsageSignatureHeaders(Usage $usage)
+    {
+        $headers = $this->getSignatureHeaders($usage->usageId);
+        $headers[] = 'X-Edu-Usage-Node-Id: ' . $usage->nodeId;
+        $headers[] = 'X-Edu-Usage-Course-Id: ' . $usage->containerId;
+        $headers[] = 'X-Edu-Usage-Resource-Id: ' . $usage->resourceId;
+        return $headers;
     }
 }

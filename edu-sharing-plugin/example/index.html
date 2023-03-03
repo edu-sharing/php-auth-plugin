@@ -39,11 +39,13 @@
             if(localStorage.getItem('usage')) {
                 const usage = JSON.parse(localStorage.getItem('usage'));
                 document.querySelector('#usage').style.display = null;
+                document.querySelector('#api').style.display = null;
                 document.querySelector('#delete-usage').style.display = null;
                 document.querySelector('#usage').innerHTML = JSON.stringify(usage, null, 4);
                 usage.action = 'GET_NODE';
-                const render = await fetchAPI(usage)
+                const render = await fetchAPI(usage);
                 document.querySelector('#render').innerHTML = render.detailsSnippet;
+                document.querySelector('#api').innerHTML = JSON.stringify(render.url, null, 4);
             }
 
         }
@@ -121,6 +123,7 @@
     <button onclick="deleteUsage()">Delete current Usage</button>
 </div>
 <div id="render"></div>
+<pre id="api" style="display: none"></pre>
 
 </body>
 </html>
