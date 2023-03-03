@@ -1,5 +1,5 @@
 <?php
-require_once "edu-sharing-helper-abstract.php";
+require_once 'edu-sharing-helper-abstract.php';
 
 class DisplayMode {
     const Inline = 'inline';
@@ -13,11 +13,11 @@ class NodeDeletedException extends Exception {
 
 }
 class Usage {
-    public $nodeId;
-    public $nodeVersion;
-    public $containerId;
-    public $resourceId;
-    public $usageId;
+    public string $nodeId;
+    public string|null $nodeVersion;
+    public string $containerId;
+    public string $resourceId;
+    public string $usageId;
 
     public function __construct($nodeId, $nodeVersion, $containerId, $resourceId, $usageId)
     {
@@ -34,14 +34,14 @@ class UrlHandling {
      * configure if urls included in the responses should be automatically configured to redirect the user to edu-sharing
      * When set to false, you need to handle Download + Replacing of LMS_INLINE_HELPER_SCRIPT by yourself
      */
-    public $enabled;
-    public $endpointURL;
+    public bool $enabled;
+    public string $endpointURL;
 
     /**
      * @param $enabled
-     * @param $endpointURL
+     * @param string $endpointURL
      */
-    public function __construct($enabled, $endpointURL)
+    public function __construct(bool $enabled, string $endpointURL = "")
     {
         $this->enabled = $enabled;
         $this->endpointURL = $endpointURL;
@@ -101,7 +101,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         string $resourceId,
         string $nodeId,
         string $nodeVersion = null
-    ) {
+    ): Usage
+    {
         $headers = $this->getSignatureHeaders($ticket);
         $headers[] = $this->getRESTAuthenticationHeader($ticket);
         $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/repository/-home-', [
@@ -118,7 +119,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             CURLOPT_HTTPHEADER => $headers
         ]);
         $data = json_decode($curl->content, true);
-        if ($curl->error === 0 && $curl->info["http_code"] === 200) {
+        if ($curl->error === 0 && $curl->info['http_code'] === 200) {
             return new Usage(
                 $data['parentNodeId'],
                 $nodeVersion,
@@ -128,7 +129,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             );
         } else {
             throw new Exception('creating usage failed ' .
-                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+                $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         }
 
     }
@@ -148,11 +149,12 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      * The id of the usage, or NULL if no usage with the given data was found
      */
     public function getUsageIdByParameters(
-        $ticket,
-        $nodeId,
-        $containerId,
-        $resourceId
-    ){
+        string $ticket,
+        string $nodeId,
+        string $containerId,
+        string $resourceId
+    ): ?string
+    {
         $headers = $this->getSignatureHeaders($ticket);
         $headers[] = $this->getRESTAuthenticationHeader($ticket);
         $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/node/' . rawurlencode($nodeId), [
@@ -161,16 +163,16 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             CURLOPT_HTTPHEADER => $headers
         ]);
         $data = json_decode($curl->content, true);
-        if ($curl->error === 0 && $curl->info["http_code"] === 200) {
-            foreach($data["usages"] as $usage) {
-                if($usage["appId"] == $this->base->appId && $usage["courseId"] == $containerId && $usage["resourceId"] == $resourceId) {
-                    return $usage["nodeId"];
+        if ($curl->error === 0 && $curl->info['http_code'] === 200) {
+            foreach($data['usages'] as $usage) {
+                if($usage['appId'] == $this->base->appId && $usage['courseId'] == $containerId && $usage['resourceId'] == $resourceId) {
+                    return $usage['nodeId'];
                 }
             }
             return null;
         } else {
             throw new Exception('fetching usage list for course failed ' .
-                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+                $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         }
     }
 
@@ -190,9 +192,9 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      */
     public function getNodeByUsage(
         Usage $usage,
-              $displayMode = DisplayMode::Inline,
+        string $displayMode = DisplayMode::Inline,
         array $renderingParams = null
-    )
+    ): mixed
     {
         $url = $this->base->baseUrl . '/rest/rendering/v1/details/-home-/' . rawurlencode($usage->nodeId);
         $url .= '?displayMode=' . rawurlencode($displayMode);
@@ -212,16 +214,16 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
 
         $data = json_decode($curl->content, true);
         $this->handleURLMapping($data, $usage);
-        if ($curl->error === 0 && $curl->info["http_code"] === 200) {
+        if ($curl->error === 0 && $curl->info['http_code'] === 200) {
             return $data;
-        } else if ($curl->info["http_code"] === 403) {
+        } else if ($curl->info['http_code'] === 403) {
             throw new UsageDeletedException('the given usage is deleted and the requested node is not public');
-        } else if ($curl->info["http_code"] === 404){
+        } else if ($curl->info['http_code'] === 404){
             throw new NodeDeletedException('the given node is already deleted ' .
-                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+                $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         } else {
             throw new Exception('fetching node by usage failed ' .
-                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+                $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         }
     }
 
@@ -247,13 +249,13 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             CURLOPT_HTTPHEADER => $headers
         ]);
         $data = json_decode($curl->content, true);
-        if ($curl->error === 0 && $curl->info["http_code"] === 200) {
-
-        } else if ($curl->info["http_code"] === 404) {
+        if ($curl->error === 0 && $curl->info['http_code'] === 200) {
+            return;
+        } else if ($curl->info['http_code'] === 404) {
             throw new UsageDeletedException('the given usage is already deleted or does not exist');
         } else {
             throw new Exception('deleting usage failed ' .
-                $curl->info["http_code"] . ': ' . $data['error'] . ' ' . $data['message']);
+                $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         }
 
     }
@@ -263,50 +265,50 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         if(!$this->config || !$this->config->urlHandling->enabled) {
             return;
         }
-        if(isset($data["node"])) {
+        if(isset($data['node'])) {
             $params =
-                "&usageId=" . urlencode($usage->usageId) .
-                "&nodeId=" . urlencode($usage->nodeId) .
-                "&resourceId=" . urlencode($usage->resourceId) .
-                "&containerId=" . urlencode($usage->containerId);
+                '&usageId=' . urlencode($usage->usageId) .
+                '&nodeId=' . urlencode($usage->nodeId) .
+                '&resourceId=' . urlencode($usage->resourceId) .
+                '&containerId=' . urlencode($usage->containerId);
             if($usage->nodeVersion) {
-                $params .= "&nodeVersion=" . urlencode($usage->nodeVersion);
+                $params .= '&nodeVersion=' . urlencode($usage->nodeVersion);
             }
-            $endpointBase = $this->config->urlHandling->endpointURL . (strpos($this->config->urlHandling->endpointURL, "?" === -1) ? "?" : "&");
-            $contentUrl = $endpointBase . "mode=content" . $params;
-            $data["url"] = [
-                "content" => $contentUrl,
-                "download" => $endpointBase . "mode=download" . $params
+            $endpointBase = $this->config->urlHandling->endpointURL . (str_contains($this->config->urlHandling->endpointURL, '?') ? '&' : '?');
+            $contentUrl = $endpointBase . 'mode=content' . $params;
+            $data['url'] = [
+                'content' => $contentUrl,
+                'download' => $endpointBase . 'mode=download' . $params
             ];
-            $data["detailsSnippet"] = str_replace("{{{LMS_INLINE_HELPER_SCRIPT}}}", $contentUrl, $data["detailsSnippet"]);
+            $data['detailsSnippet'] = str_replace('{{{LMS_INLINE_HELPER_SCRIPT}}}', $contentUrl, $data['detailsSnippet']);
         }
     }
 
-    public function getRedirectUrl(string $mode, Usage $usage)
+    public function getRedirectUrl(string $mode, Usage $usage): string
     {
         $headers = $this->getUsageSignatureHeaders($usage);
         $node = $this->getNodeByUsage($usage);
-        $params = "";
+        $params = '';
         foreach($headers as $header) {
-            if(substr($header, 0, 2) !== "X-"){
+            if(!str_starts_with($header, 'X-')){
                 continue;
             }
-            $header = explode(": ", $header);
-            $params .= "&" . $header[0] . "=" . urlencode($header[1]);
+            $header = explode(': ', $header);
+            $params .= '&' . $header[0] . '=' . urlencode($header[1]);
         }
         if($mode === 'content') {
-            $url = $node["node"]["content"]["url"];
-            $params .= "&closeOnBack=true";
+            $url = $node['node']['content']['url'];
+            $params .= '&closeOnBack=true';
         } else if ($mode === 'download') {
-            $url = $node["node"]["downloadUrl"];
+            $url = $node['node']['downloadUrl'];
         } else {
-            throw new Exception("Unknown parameter for mode: " . $mode);
+            throw new Exception('Unknown parameter for mode: ' . $mode);
         }
-        return $url . (strpos($url, "?") === false ? "?" : "") . $params;
+        return $url . (str_contains($url, '?') ? '' : '?') . $params;
 
     }
 
-    private function getUsageSignatureHeaders(Usage $usage)
+    private function getUsageSignatureHeaders(Usage $usage): array
     {
         $headers = $this->getSignatureHeaders($usage->usageId);
         $headers[] = 'X-Edu-Usage-Node-Id: ' . $usage->nodeId;

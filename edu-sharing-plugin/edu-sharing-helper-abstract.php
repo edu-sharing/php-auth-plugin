@@ -2,7 +2,7 @@
 
 abstract class EduSharingHelperAbstract {
 
-    protected $base;
+    protected EduSharingHelperBase $base;
     public function __construct(
         EduSharingHelperBase $base
     ) {
@@ -15,15 +15,17 @@ abstract class EduSharingHelperAbstract {
      * The ticket, obtained by @getTicketForUser
      * @return string
      */
-    public function getRESTAuthenticationHeader(string $ticket) {
+    public function getRESTAuthenticationHeader(string $ticket): string
+    {
         return 'Authorization: EDU-TICKET ' . $ticket;
     }
 
     protected function getSignatureHeaders(
         string $signString,
-        $accept = 'application/json',
-        $contentType = 'application/json'
-    ) {
+        string $accept = 'application/json',
+        string $contentType = 'application/json'
+    ): array
+    {
         $ts = time() * 1000;
         $toSign = $this->base->appId . $signString . $ts;
         $signature = $this->sign($toSign);
@@ -37,7 +39,8 @@ abstract class EduSharingHelperAbstract {
         ];
     }
 
-    protected function sign(string $toSign) {
+    protected function sign(string $toSign): string
+    {
         return $this->base->sign($toSign);
     }
 }

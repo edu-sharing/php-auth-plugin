@@ -1,9 +1,9 @@
 <?php
 
 class CurlResult {
-    public $content;
-    public $error;
-    public $info;
+    public string $content;
+    public int $error;
+    public array $info;
     public function __construct(
         string $content,
         int $error,

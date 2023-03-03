@@ -1,26 +1,26 @@
 <?php
-define('APP_ID', 'sample-app');
+const APP_ID = 'sample-app';
 define('BASE_URL_INTERNAL', getenv('BASE_URL_INTERNAL'));
 define('BASE_URL_EXTERNAL', getenv('BASE_URL_EXTERNAL'));
-define('USERNAME', 'tester');
+const USERNAME = 'tester';
 
 
 header('Accept: application/json');
 header('Content-Type: application/json');
 
-require_once "../edu-sharing-helper.php";
-require_once "../edu-sharing-helper-base.php";
-require_once "../edu-sharing-auth-helper.php";
-require_once "../edu-sharing-node-helper.php";
+require_once '../edu-sharing-helper.php';
+require_once '../edu-sharing-helper-base.php';
+require_once '../edu-sharing-auth-helper.php';
+require_once '../edu-sharing-node-helper.php';
 
 $privatekey = @file_get_contents('private.key');
 if(!$privatekey) {
     die('no private key');
 } else {
-    $key["privatekey"] = $privatekey;
+    $key['privatekey'] = $privatekey;
 }
 // init the base class instance we use for all helpers
-$base = new EduSharingHelperBase(BASE_URL_INTERNAL, $key["privatekey"], APP_ID);
+$base = new EduSharingHelperBase(BASE_URL_INTERNAL, $key['privatekey'], APP_ID);
 $nodeHelper = new EduSharingNodeHelper($base,
     new EduSharingNodeHelperConfig(
         new UrlHandling(true, 'example-api.php?action=REDIRECT')
@@ -30,7 +30,7 @@ $postData = json_decode(file_get_contents('php://input'));
 if($postData) {
     $action = $postData->action;
 } else {
-    $action = $_GET["action"];
+    $action = $_GET['action'];
 }
 $result = null;
 try {
@@ -50,13 +50,13 @@ try {
     } else if ($action === 'REDIRECT') {
         // in a real application, you should check if the user is actually allowed to access this usage!
         $url = $nodeHelper->getRedirectUrl(
-            $_GET["mode"],
+            $_GET['mode'],
             new Usage(
-                $_GET["nodeId"],
-                isset($_GET["nodeVersion"]) ? $_GET["nodeVersion"] : null,
-                $_GET["containerId"],
-                $_GET["resourceId"],
-                $_GET["usageId"],
+                $_GET['nodeId'],
+                $_GET['nodeVersion'] ?? null,
+                $_GET['containerId'],
+                $_GET['resourceId'],
+                $_GET['usageId'],
             )
         );
         header("Location: $url");

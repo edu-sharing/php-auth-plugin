@@ -1,11 +1,11 @@
 <?php
 
 class EduSharingHelperBase {
-    public $baseUrl;
-    public $privateKey;
-    public $appId;
-    public $language = 'de';
-    private $curlHandler;
+    public string $baseUrl;
+    public string $privateKey;
+    public string $appId;
+    public string $language = 'de';
+    private CurlHandler $curlHandler;
     /**
      * @param string $baseUrl
      * The base url to your repository in the format "http://<host>/edu-sharing"
@@ -22,7 +22,7 @@ class EduSharingHelperBase {
         if(!preg_match('/^([a-z]|[A-Z]|[0-9]|[-_])+$/', $appId)) {
             throw new Exception('The given app id contains invalid characters or symbols');
         }
-        if(substr($baseUrl, -1) === '/') {
+        if(str_ends_with($baseUrl, '/')) {
             $baseUrl = substr($baseUrl, 0, -1);
         }
         $this->baseUrl=$baseUrl;
@@ -31,31 +31,35 @@ class EduSharingHelperBase {
         $this->curlHandler=new DefaultCurlHandler();
     }
 
-    public function registerCurlHandler(CurlHandler $handler) {
+    public function registerCurlHandler(CurlHandler $handler): void
+    {
         $this->curlHandler = $handler;
     }
 
-    public function handleCurlRequest(string $url, array $curlOptions) {
+    public function handleCurlRequest(string $url, array $curlOptions): CurlResult
+    {
         return $this->curlHandler->handleCurlRequest($url, $curlOptions);
     }
 
-    public function setLanguage(string $language) {
+    public function setLanguage(string $language): void
+    {
         $this->language = $language;
     }
 
-    function sign(string $toSign) {
+    function sign(string $toSign): string
+    {
         $pkeyid = openssl_get_privatekey($this->privateKey);
         openssl_sign($toSign, $signature, $pkeyid);
-        $signature = base64_encode($signature);
-        return $signature;
+        return base64_encode($signature);
     }
 
     /**
      * will throw an exception if the given edu-sharing api is not compatible with this library version
      * i.e. you could call this in your configuration / setup
      */
-    function verifyCompatibility() {
-        $MIN_VERSION = "8.0";
+    function verifyCompatibility(): void
+    {
+        $MIN_VERSION = '8.0';
         $result = json_decode($this->curlHandler->handleCurlRequest($this->baseUrl . '/rest/_about', [
             CURLOPT_HTTPHEADER => [
                 'Accept: application/json',
@@ -66,8 +70,8 @@ class EduSharingHelperBase {
         ])->content,
             true
         );
-        if(version_compare($result["version"]["repository"], $MIN_VERSION) < 0) {
-            throw new Exception("The edu-sharing version of the target repository is too low. Minimum required is " . $MIN_VERSION . "\n" . print_r($result["version"], true));
+        if(version_compare($result['version']['repository'], $MIN_VERSION) < 0) {
+            throw new Exception('The edu-sharing version of the target repository is too low. Minimum required is ' . $MIN_VERSION . "\n" . print_r($result['version'], true));
         }
     }
 
