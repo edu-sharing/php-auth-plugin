@@ -50,6 +50,39 @@ Simply call `getNodeByUsage` including the usage data you received previously.
 
 You'll get the full node object (see the REST specification) as well as a ready-to-embed HTML snipped (`detailsSnippet`).
 
+#### 2.1 Content + Download Linking
+Since the object you've received is may not publicly available, you need to generate specific urls in order to access it via the current usage.
+
+You'll need an seperat endpoint in your application which verifys access of the current user and then redirect him to edu-sharing.
+
+When initializing the library, configure the path where this endpoint will be available in your application like
+
+
+```php
+$nodeHelper = new EduSharingNodeHelper($base,
+    new EduSharingNodeHelperConfig(
+        new UrlHandling(true, 'my/api/redirect/endpoint')
+    )
+);
+```
+
+This endpoint should then verify your users permissions and call the redirect method of the library:
+```php
+        $url = $nodeHelper->getRedirectUrl(
+            $_GET['mode'],
+            new Usage(
+                $_GET['nodeId'],
+                $_GET['nodeVersion'] ?? null,
+                $_GET['containerId'],
+                $_GET['resourceId'],
+                $_GET['usageId'],
+            )
+        );
+        header("Location: $url");
+```
+This method will create a signed url with a current timestamp which will then give the user temporary access to the given object.
+
+The `urls` section you got returned from `getNodeByUsage` already targets the endpoint url you specified.
 
 ## FAQ
 
