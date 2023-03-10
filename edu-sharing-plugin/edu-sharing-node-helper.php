@@ -277,34 +277,45 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             $endpointBase = $this->config->urlHandling->endpointURL . (str_contains($this->config->urlHandling->endpointURL, '?') ? '&' : '?');
             $contentUrl = $endpointBase . 'mode=content' . $params;
             $data['url'] = [
-                'content' => $contentUrl,
-                'download' => $endpointBase . 'mode=download' . $params
+                'content' => $contentUrl
             ];
             $data['detailsSnippet'] = str_replace('{{{LMS_INLINE_HELPER_SCRIPT}}}', $contentUrl, $data['detailsSnippet']);
         }
     }
 
-    public function getRedirectUrl(string $mode, Usage $usage): string
+    public function getRedirectUrl(string $username, string $mode, Usage $usage): string
     {
+        $authHelper = new EduSharingAuthHelper($this->base);
+        $ticket = $authHelper->getTicketForUser($username);
+
         $headers = $this->getUsageSignatureHeaders($usage);
         $node = $this->getNodeByUsage($usage);
-        $params = '';
+        $headersAssoc = [];
         foreach($headers as $header) {
             if(!str_starts_with($header, 'X-')){
                 continue;
             }
             $header = explode(': ', $header);
-            $params .= '&' . $header[0] . '=' . urlencode($header[1]);
+            $headersAssoc[$header[0]] = $header[1];
         }
+        $baseUrl = substr($node['node']['content']['url'], 0, strpos($node['node']['content']['url'], '/edu-sharing') + 12);
+        $url = $baseUrl . '/renderingproxy' .
+            '?app_id=' . urlencode($this->base->appId) .
+            '&rep_id=' . urlencode($node['node']['ref']['repo']) .
+            '&obj_id=' . urlencode($usage->nodeId) .
+            '&resource_id=' . urlencode($usage->resourceId) .
+            '&course_id=' . urlencode($usage->containerId) .
+            '&sig=' . urlencode($headersAssoc['X-Edu-App-Sig']) .
+            '&signed=' . urlencode($headersAssoc['X-Edu-App-Signed']) .
+            '&ts=' . urlencode($headersAssoc['X-Edu-App-Ts']) .
+            '&ticket=' . rawurlencode($this->base->encrypt($ticket)) .
+            '&u=' . rawurlencode($this->base->encrypt($username));
         if($mode === 'content') {
-            $url = $node['node']['content']['url'];
-            $params .= '&closeOnBack=true';
-        } else if ($mode === 'download') {
-            $url = $node['node']['downloadUrl'];
-        } else {
-            throw new Exception('Unknown parameter for mode: ' . $mode);
+            $url .= '&display=window';
+        }else {
+            throw new Exception('Unknown/unsupported parameter for mode: ' . $mode);
         }
-        return $url . (str_contains($url, '?') ? '' : '?') . $params;
+        return $url;
 
     }
 

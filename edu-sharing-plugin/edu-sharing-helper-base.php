@@ -3,6 +3,7 @@
 class EduSharingHelperBase {
     public string $baseUrl;
     public string $privateKey;
+    public string $repositoryPublicKey;
     public string $appId;
     public string $language = 'de';
     private CurlHandler $curlHandler;
@@ -11,12 +12,15 @@ class EduSharingHelperBase {
      * The base url to your repository in the format "http://<host>/edu-sharing"
      * @param string $privateKey
      * Your app's private key. This must match the public key registered in the repo
+     * @param string $repositoryPublicKey
+     * The repositories public key. You can obtain it from the repo by calling
      * @param string $appId
      * Your app id name (as registered in the edu-sharing repository)
      */
     public function __construct(
         string $baseUrl,
         string $privateKey,
+        string $repositoryPublicKey,
         string $appId
     ) {
         if(!preg_match('/^([a-z]|[A-Z]|[0-9]|[-_])+$/', $appId)) {
@@ -27,6 +31,7 @@ class EduSharingHelperBase {
         }
         $this->baseUrl=$baseUrl;
         $this->privateKey=$privateKey;
+        $this->repositoryPublicKey=$repositoryPublicKey;
         $this->appId=$appId;
         $this->curlHandler=new DefaultCurlHandler();
     }
@@ -52,6 +57,13 @@ class EduSharingHelperBase {
         openssl_sign($toSign, $signature, $pkeyid);
         return base64_encode($signature);
     }
+    public function encrypt(string $toEncrypt): string
+    {
+        $pkeyid = openssl_get_publickey($this->repositoryPublicKey);
+        openssl_public_encrypt($toEncrypt, $crypted, $pkeyid);
+        return base64_encode($crypted);
+    }
+
 
     /**
      * will throw an exception if the given edu-sharing api is not compatible with this library version
@@ -59,7 +71,7 @@ class EduSharingHelperBase {
      */
     function verifyCompatibility(): void
     {
-        $MIN_VERSION = '8.0';
+        $MIN_VERSION = '6.0';
         $request = $this->curlHandler->handleCurlRequest($this->baseUrl . '/rest/_about', [
             CURLOPT_HTTPHEADER => [
                 'Accept: application/json',

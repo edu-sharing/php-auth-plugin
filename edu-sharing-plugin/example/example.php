@@ -27,7 +27,7 @@ if(count($argv) < 2) {
     die('This script should be called as follow: "example.php http://localhost:8080/edu-sharing [<node-id>]"');
 }
 // init the base class instance we use for all helpers
-$base = new EduSharingHelperBase($argv[1], $key['privatekey'], APP_ID);
+$base = new EduSharingHelperBase($argv[1], $key['privatekey'], null, APP_ID);
 $base->setLanguage('de');
 $base->verifyCompatibility();
 

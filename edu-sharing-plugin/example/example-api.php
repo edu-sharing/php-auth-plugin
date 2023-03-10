@@ -19,8 +19,15 @@ if(!$privatekey) {
 } else {
     $key['privatekey'] = $privatekey;
 }
+$xml = file_get_contents(BASE_URL_INTERNAL . '/metadata?format=lms');
+$xml = new SimpleXMLElement($xml);
+foreach($xml->entry as $entry) {
+    if($entry->attributes()['key'] == 'public_key') {
+        $repositoryPublicKey = (string)$entry;
+    }
+}
 // init the base class instance we use for all helpers
-$base = new EduSharingHelperBase(BASE_URL_INTERNAL, $key['privatekey'], APP_ID);
+$base = new EduSharingHelperBase(BASE_URL_INTERNAL, $key['privatekey'], $repositoryPublicKey, APP_ID);
 $nodeHelper = new EduSharingNodeHelper($base,
     new EduSharingNodeHelperConfig(
         new UrlHandling(true, 'example-api.php?action=REDIRECT')
@@ -50,6 +57,7 @@ try {
     } else if ($action === 'REDIRECT') {
         // in a real application, you should check if the user is actually allowed to access this usage!
         $url = $nodeHelper->getRedirectUrl(
+            USERNAME,
             $_GET['mode'],
             new Usage(
                 $_GET['nodeId'],

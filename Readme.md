@@ -69,6 +69,7 @@ $nodeHelper = new EduSharingNodeHelper($base,
 This endpoint should then verify your users permissions and call the redirect method of the library:
 ```php
         $url = $nodeHelper->getRedirectUrl(
+            $username
             $_GET['mode'],
             new Usage(
                 $_GET['nodeId'],
