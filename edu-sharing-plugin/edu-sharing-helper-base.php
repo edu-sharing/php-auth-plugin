@@ -70,7 +70,7 @@ class EduSharingHelperBase {
         ]);
         if($request->info["http_code"] === 200) {
             $result = json_decode($request->content, true);
-            if (version_compare(isset($result["version"]["repository"]), $MIN_VERSION) < 0) {
+            if (version_compare($result["version"]["repository"], $MIN_VERSION) <= 0) {
                 throw new Exception("The edu-sharing version of the target repository is too low. Minimum required is " . $MIN_VERSION . "\n" . print_r(isset($result['version']) ? $result['version'] : $result, true));
             }
         } else {
