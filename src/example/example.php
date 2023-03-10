@@ -5,20 +5,19 @@
  * On first run, a properties.xml file will be created
  * Upload this file to your target edu-sharing (Admin-Tools -> Remote Systems -> Choose XML-File)
  */
+namespace EduSharing;
+
+require_once __DIR__ . '/../vendor/autoload.php';
 
 const APP_ID = 'sample-app';
 const USERNAME = 'tester';
-require_once '../edu-sharing-helper.php';
-require_once '../edu-sharing-helper-base.php';
-require_once '../edu-sharing-auth-helper.php';
-require_once '../edu-sharing-node-helper.php';
 
-$privatekey = @file_get_contents('private.key');
+$privatekey = @file_get_contents(__DIR__ . '/data/private.key');
 if(!$privatekey) {
     $key = EduSharingHelper::generateKeyPair();
     // store the $key data inside your application, e.g. your database or plugin config
-    file_put_contents(APP_ID . '.properties.xml', EduSharingHelper::generateEduAppXMLData(APP_ID, $key['publickey']));
-    file_put_contents('private.key', $key['privatekey']);
+    file_put_contents(__DIR__ . '/data/' . APP_ID . '.properties.xml', EduSharingHelper::generateEduAppXMLData(APP_ID, $key['publickey']));
+    file_put_contents(__DIR__ . '/data/private.key', $key['privatekey']);
     die('Wrote ' . APP_ID . '.properties.xml file. Upload it to edu-sharing, then run this script again');
 } else {
     $key['privatekey'] = $privatekey;

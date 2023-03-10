@@ -1,6 +1,5 @@
 <?php
-
-require_once 'Curl.php';
+namespace EduSharing;
 
 class EduSharingHelper {
     /**
@@ -8,14 +7,14 @@ class EduSharingHelper {
      * Store the data somewhere in your application, e.g. database
      * use the public key returned to register the application in edu-sharing
      * NOTE: This function will fail on windows-based systems!
-     * @throws Exception
+     * @throws \Exception
      */
     public static function generateKeyPair(
     ): array
     {
         $res = openssl_pkey_new();
         if(!$res) {
-            throw new Exception('No result from openssl_pkey_new. Please check your php installation');
+            throw new \Exception('No result from openssl_pkey_new. Please check your php installation');
         }
         openssl_pkey_export($res, $privatekey);
         $publickey = openssl_pkey_get_details($res);

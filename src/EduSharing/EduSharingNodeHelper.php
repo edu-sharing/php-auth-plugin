@@ -1,67 +1,6 @@
 <?php
-require_once 'edu-sharing-helper-abstract.php';
+namespace EduSharing;
 
-class DisplayMode {
-    const Inline = 'inline';
-    const Embed = 'embed';
-    const Dynamic = 'dynamic';
-}
-class UsageDeletedException extends Exception {
-
-}
-class NodeDeletedException extends Exception {
-
-}
-class Usage {
-    public string $nodeId;
-    public string|null $nodeVersion;
-    public string $containerId;
-    public string $resourceId;
-    public string $usageId;
-
-    public function __construct($nodeId, $nodeVersion, $containerId, $resourceId, $usageId)
-    {
-        $this->nodeId = $nodeId;
-        $this->nodeVersion = $nodeVersion;
-        $this->containerId = $containerId;
-        $this->resourceId = $resourceId;
-        $this->usageId = $usageId;
-    }
-
-}
-class UrlHandling {
-    /**
-     * configure if urls included in the responses should be automatically configured to redirect the user to edu-sharing
-     * When set to false, you need to handle Download + Replacing of LMS_INLINE_HELPER_SCRIPT by yourself
-     */
-    public bool $enabled;
-    public string $endpointURL;
-
-    /**
-     * @param $enabled
-     * @param string $endpointURL
-     */
-    public function __construct(bool $enabled, string $endpointURL = "")
-    {
-        $this->enabled = $enabled;
-        $this->endpointURL = $endpointURL;
-    }
-
-
-}
-class EduSharingNodeHelperConfig {
-    public UrlHandling $urlHandling;
-
-    /**
-     * @param UrlHandling $urlHandling
-     */
-    public function __construct(UrlHandling $urlHandling)
-    {
-        $this->urlHandling = $urlHandling;
-    }
-
-
-}
 class EduSharingNodeHelper extends EduSharingHelperAbstract  {
     private EduSharingNodeHelperConfig $config;
 
@@ -128,7 +67,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
                 $data['nodeId']
             );
         } else {
-            throw new Exception('creating usage failed ' .
+            throw new \Exception('creating usage failed ' .
                 $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         }
 
@@ -171,7 +110,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             }
             return null;
         } else {
-            throw new Exception('fetching usage list for course failed ' .
+            throw new \Exception('fetching usage list for course failed ' .
                 $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         }
     }
@@ -188,7 +127,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      * Returns an object containing a "detailsSnippet" repesentation
      * as well as the full node as provided by the REST API
      * Please refer to the edu-sharing REST documentation for more details
-     * @throws Exception
+     * @throws \Exception
      */
     public function getNodeByUsage(
         Usage $usage,
@@ -222,7 +161,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             throw new NodeDeletedException('the given node is already deleted ' .
                 $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         } else {
-            throw new Exception('fetching node by usage failed ' .
+            throw new \Exception('fetching node by usage failed ' .
                 $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         }
     }
@@ -254,7 +193,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         } else if ($curl->info['http_code'] === 404) {
             throw new UsageDeletedException('the given usage is already deleted or does not exist');
         } else {
-            throw new Exception('deleting usage failed ' .
+            throw new \Exception('deleting usage failed ' .
                 $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         }
 
@@ -302,7 +241,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         } else if ($mode === 'download') {
             $url = $node['node']['downloadUrl'];
         } else {
-            throw new Exception('Unknown parameter for mode: ' . $mode);
+            throw new \Exception('Unknown parameter for mode: ' . $mode);
         }
         return $url . (str_contains($url, '?') ? '' : '?') . $params;
 

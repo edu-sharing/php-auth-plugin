@@ -1,4 +1,5 @@
 <?php
+namespace EduSharing;
 
 abstract class EduSharingHelperAbstract {
 

@@ -1,4 +1,7 @@
 <?php
+namespace EduSharing;
+
+require_once __DIR__ . '/../vendor/autoload.php';
 const APP_ID = 'sample-app';
 define('BASE_URL_INTERNAL', getenv('BASE_URL_INTERNAL'));
 define('BASE_URL_EXTERNAL', getenv('BASE_URL_EXTERNAL'));
@@ -8,12 +11,7 @@ const USERNAME = 'tester';
 header('Accept: application/json');
 header('Content-Type: application/json');
 
-require_once '../edu-sharing-helper.php';
-require_once '../edu-sharing-helper-base.php';
-require_once '../edu-sharing-auth-helper.php';
-require_once '../edu-sharing-node-helper.php';
-
-$privatekey = @file_get_contents('private.key');
+$privatekey = @file_get_contents('data/private.key');
 if(!$privatekey) {
     die('no private key');
 } else {
@@ -87,7 +85,7 @@ try {
 }catch(AppAuthException $e) {
     http_response_code(401);
     echo $e->getMessage();
-}catch(Exception $e) {
+}catch(\Exception $e) {
     http_response_code(500);
     echo $e->getMessage();
 }

@@ -2,12 +2,18 @@
     "name": "edu-sharing/auth-plugin",
     "description": "Plugin to provide authentification via Auth By App with a edu-sharing repository",
     "type": "library",
+    "license": "GPL-3.0-only",
     "authors": [
         {
             "name": "Torsten Simon",
             "email": "simon@edu-sharing.net"
         }
     ],
+  "autoload": {
+    "psr-4": {
+      "EduSharing\\": "EduSharing"
+    }
+  },
   "require": {
     "php": ">= 8.0",
     "ext-json": "*",

@@ -1,4 +1,5 @@
 <?php
+namespace EduSharing;
 
 class EduSharingHelperBase {
     public string $baseUrl;
@@ -20,7 +21,7 @@ class EduSharingHelperBase {
         string $appId
     ) {
         if(!preg_match('/^([a-z]|[A-Z]|[0-9]|[-_])+$/', $appId)) {
-            throw new Exception('The given app id contains invalid characters or symbols');
+            throw new \Exception('The given app id contains invalid characters or symbols');
         }
         if(str_ends_with($baseUrl, '/')) {
             $baseUrl = substr($baseUrl, 0, -1);
@@ -71,10 +72,10 @@ class EduSharingHelperBase {
         if($request->info["http_code"] === 200) {
             $result = json_decode($request->content, true);
             if (version_compare($result["version"]["repository"], $MIN_VERSION) <= 0) {
-                throw new Exception("The edu-sharing version of the target repository is too low. Minimum required is " . $MIN_VERSION . "\n" . print_r(isset($result['version']) ? $result['version'] : $result, true));
+                throw new \Exception("The edu-sharing version of the target repository is too low. Minimum required is " . $MIN_VERSION . "\n" . print_r(isset($result['version']) ? $result['version'] : $result, true));
             }
         } else {
-            throw new Exception("The edu-sharing version could not be retrieved\n" . print_r($request->info, true));
+            throw new \Exception("The edu-sharing version could not be retrieved\n" . print_r($request->info, true));
         }
     }
 
