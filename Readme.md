@@ -11,6 +11,7 @@ To register systems, log in to your edu-sharing as an administrator, switch to A
 
 ## Composer Usage (Beta)
 If you already use composer, you can fetch this library as a composer dependency
+
 `composer require edu-sharing/auth-plugin 8.0.x-dev`.
 
 You can access all classes in the `EduSharing` namespace. 
