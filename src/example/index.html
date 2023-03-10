@@ -58,7 +58,7 @@
                 resourceId: Math.random()
             });
         }
-        async function deleteUsage(nodeId) {
+        async function deleteUsage() {
             const usage = JSON.parse(localStorage.getItem('usage'));
             try {
                 await fetchAPI({
