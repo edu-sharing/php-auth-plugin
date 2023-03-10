@@ -9,6 +9,14 @@ edu-sharing 6.0 or greater must be used in order to make use of this library.
 
 To register systems, log in to your edu-sharing as an administrator, switch to Admin-Tools -> Remote-Systems
 
+## Composer Usage (Beta)
+If you already use composer, you can fetch this library as a composer dependency
+`composer require edu-sharing/auth-plugin 8.0.x-dev`.
+
+You can access all classes in the `EduSharing` namespace. 
+
+Find out more about the package and available versions here: https://packagist.org/packages/edu-sharing/auth-plugin
+
 ## How to Register Your App?
 The registration is handled by providing a public key to the repository (via an XML file).
 
