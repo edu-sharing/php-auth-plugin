@@ -24,6 +24,7 @@ The registration is handled by providing a public key to the repository (via an 
 You can create such a registration file by calling
 `php example/example.php`. It will create a `private.key` file (make sure to safely store this file and never expose it to clients!).
 The generated `properties.xml` file can then be used to register the app in edu-sharing. (see [Pre-Requisites](#pre-requisites))
+(This is not required when using docker, it will be executed automatically)
 
 ## Basic Workflow & Features
 
@@ -51,7 +52,7 @@ Persist the data you receive from this method to display it later.
 
 A full working example is given in `example/index.html` (you need to register your app first, see above)
 
-Check the `docker-compose.yml` file for the `BASE_URL` variables. Then use `docker compose up -d` inside the `example` folder and open http://localhost:8080/example.  
+Check the `docker-compose.yml` file for the `BASE_URL` variables. Then use `docker compose build && docker compose up -d` inside the `example` folder and open http://localhost:8080/example.  
 
 ### 2. Rendering / displaying a previously embedded object
 If you previously generated a usage for an object, you can fetch it for displaying / rendering.
