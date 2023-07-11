@@ -91,7 +91,7 @@ class EduSharingHelperBase {
     function verifyCompatibility(): void
     {
         $minVersion = '8.0';
-        $request = $this->curlHandler->handleCurlRequest($this->baseUrl . '/rest/_about', [
+        $request = $this->handleCurlRequest($this->baseUrl . '/rest/_about', [
             CURLOPT_HTTPHEADER     => [
                 'Accept: application/json',
                 'Content-Type: application/json',
@@ -99,8 +99,8 @@ class EduSharingHelperBase {
             CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1
         ]);
-        if($request->info["http_code"] === 200) {
-            $result = json_decode($request->content, true);
+        if ((int)$request->info["http_code"] === 200) {
+            $result = json_decode($request->content, true, 512, JSON_THROW_ON_ERROR);
             if (version_compare($result["version"]["repository"], $minVersion) < 0) {
                 throw new Exception("The edu-sharing version of the target repository is too low. Minimum required is " . $minVersion . "\n" . print_r(isset($result['version']) ? $result['version'] : $result, true));
             }

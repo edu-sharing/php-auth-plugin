@@ -91,7 +91,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             CURLOPT_HTTPHEADER     => $headers
         ]);
         $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
-        if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200 && is_array($data) && isset($data['usages'])) {
+        if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200 && isset($data['usages'])) {
             foreach($data['usages'] as $usage) {
                 if((string)$usage['appId'] === $this->base->appId && (string)$usage['courseId'] === $containerId && (string)$usage['resourceId'] === $resourceId) {
                     return isset($usage['nodeId']) ? (string)$usage['nodeId'] : null;
@@ -138,12 +138,12 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         ]);
         $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         $this->handleURLMapping($data, $usage);
-        if ($curl->error === 0 && $curl->info['http_code'] === 200) {
+        if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 200) {
             return $data;
         }
-        if ($curl->info['http_code'] ?? 0 === 403) {
+        if ((int)($curl->info['http_code'] ?? 0) === 403) {
             throw new UsageDeletedException('the given usage is deleted and the requested node is not public');
-        } else if ($curl->info['http_code'] ?? 0 === 404){
+        } else if ((int)($curl->info['http_code'] ?? 0) === 404){
             throw new NodeDeletedException('the given node is already deleted ' . $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         } else {
             throw new Exception('fetching node by usage failed ' . $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
@@ -174,10 +174,10 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             CURLOPT_HTTPHEADER => $headers
         ]);
         $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
-        if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200) {
+        if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 200) {
             return;
         }
-        if ($curl->info['http_code'] === 404) {
+        if ((int)($curl->info['http_code'] ?? 0) === 404) {
             throw new UsageDeletedException('the given usage is already deleted or does not exist');
         } else {
             throw new Exception('deleting usage failed ' . $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
@@ -242,7 +242,6 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             throw new Exception('Unknown parameter for mode: ' . $mode);
         }
         return $url . (str_contains($url, '?') ? '' : '?') . $params;
-
     }
 
     /**

@@ -35,10 +35,10 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT        => 5
         ]);
-        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
-        if (is_null($data)) {
+        if ($curl->content === '') {
             throw new Exception('No answer from repository. Possibly a timeout while trying to connect to ' . $this->base->baseUrl);
         }
+        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         if ($data['statusCode'] !== 'OK') {
             throw new Exception('The given ticket is not valid anymore');
         }
@@ -64,18 +64,14 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT => 5
         ]);
+        if ($curl->content === '') {
+            throw new Exception('edu-sharing ticket could not be retrieved: HTTP-Code ' . $curl->info['http_code'] . ': ' . 'No answer from repository. Possibly a timeout while trying to connect to "' . $this->base->baseUrl . '"');
+        }
         $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
-        if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200 && ($data['userId'] ?? '' === $username ||
-                substr($data['userId'], 0, strlen($username) + 1) === $username . '@'
-            )) {
+        $responseOk = $curl->error === 0 && (int)$curl->info['http_code'] ?? 0 === 200;
+        if ($responseOk && ($data['userId'] ?? '' === $username || substr($data['userId'], 0, strlen($username) + 1) === $username . '@')) {
             return $data['ticket'];
         }
-        if (is_null($data)) {
-            $data = ['error' => 'No answer from repository. Possibly a timeout while trying to connect to "' . $this->base->baseUrl . '"'];
-        }
-        if (isset($data['message'])) {
-            throw new AppAuthException($data['message']);
-        }
-        throw new Exception('edu-sharing ticket could not be retrieved: HTTP-Code ' . $curl->info['http_code'] . ': ' . $data['error'] . '/' . @$data['message']);
+        throw new AppAuthException($data['message'] ?? '');
     }
 }
