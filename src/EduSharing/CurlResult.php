@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace EduSharing;
+namespace EduSharingApiClient;
 
 /**
  * Class CurlResult
@@ -12,8 +12,8 @@ namespace EduSharing;
 class CurlResult
 {
     public string $content;
-    public int $error;
-    public array $info;
+    public int    $error;
+    public array  $info;
 
     /**
      * CurlResult Constructor

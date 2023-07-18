@@ -1,5 +1,5 @@
 <?php declare(strict_types = 1);
-namespace EduSharing;
+namespace EduSharingApiClient;
 
 use Exception;
 
@@ -75,7 +75,7 @@ class EduSharingHelperBase {
      * @param string $toSign
      * @return string
      */
-    function sign(string $toSign): string
+    public function sign(string $toSign): string
     {
         $privateKeyId = openssl_get_privatekey($this->privateKey);
         openssl_sign($toSign, $signature, $privateKeyId);
@@ -88,7 +88,7 @@ class EduSharingHelperBase {
      *
      * @throws Exception
      */
-    function verifyCompatibility(): void
+    public function verifyCompatibility(): void
     {
         $minVersion = '8.0';
         $request = $this->handleCurlRequest($this->baseUrl . '/rest/_about', [

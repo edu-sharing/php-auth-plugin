@@ -1,5 +1,5 @@
 <?php declare(strict_types = 1);
-namespace EduSharing;
+namespace EduSharingApiClient;
 
 use Exception;
 
@@ -23,10 +23,10 @@ class EduSharingHelper {
         !$res && throw new Exception('No result from openssl_pkey_new. Please check your php installation');
         openssl_pkey_export($res, $privateKey);
         $publicKeyData = openssl_pkey_get_details($res);
-        $publicKey = $publicKeyData['key'];
+        $publicKey     = $publicKeyData['key'];
         return [
-            'privatekey' => $privateKey,
-            'publickey'  => $publicKey
+            'privateKey' => $privateKey,
+            'publicKey'  => $publicKey
         ];
     }
 

@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace EduSharing;
+namespace EduSharingApiClient;
 
 /**
  * Class Usage
@@ -12,22 +12,22 @@ namespace EduSharing;
  **/
 class Usage
 {
-    public string $nodeId;
+    public string      $nodeId;
     public string|null $nodeVersion;
-    public string $containerId;
-    public string $resourceId;
-    public string $usageId;
+    public string      $containerId;
+    public string      $resourceId;
+    public string      $usageId;
 
     /**
      * Usage constructor
      *
-     * @param string $nodeId
+     * @param string      $nodeId
      * @param string|null $nodeVersion
-     * @param string $containerId
-     * @param string $resourceId
-     * @param string $usageId
+     * @param string      $containerId
+     * @param string      $resourceId
+     * @param string|null $usageId
      */
-    public function __construct(string $nodeId, ?string $nodeVersion, string $containerId, string $resourceId, string $usageId) {
+    public function __construct(string $nodeId, ?string $nodeVersion, string $containerId, string $resourceId, ?string $usageId) {
         $this->nodeId      = $nodeId;
         $this->nodeVersion = $nodeVersion;
         $this->containerId = $containerId;

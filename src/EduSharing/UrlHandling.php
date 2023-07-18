@@ -1,6 +1,6 @@
 <?php declare(strict_types = 1);
 
-namespace EduSharing;
+namespace EduSharingApiClient;
 
 /**
  * Class UrlHandling
@@ -27,6 +27,4 @@ class UrlHandling
         $this->enabled     = $enabled;
         $this->endpointURL = $endpointURL;
     }
-
-
 }
