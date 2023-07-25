@@ -8,7 +8,7 @@ namespace EduSharingApiClient;
  */
 abstract class EduSharingHelperAbstract {
 
-    protected EduSharingHelperBase $base;
+    public EduSharingHelperBase $base;
 
     /**
      * EduSharingHelperAbstract constructor
@@ -40,8 +40,8 @@ abstract class EduSharingHelperAbstract {
      * @return string[]
      */
     protected function getSignatureHeaders(string $signString, string $accept = 'application/json', string $contentType = 'application/json'): array {
-        $ts = time() * 1000;
-        $toSign = $this->base->appId . $signString . $ts;
+        $ts        = time() * 1000;
+        $toSign    = $this->base->appId . $signString . $ts;
         $signature = $this->sign($toSign);
         return [
             'Accept: ' . $accept,

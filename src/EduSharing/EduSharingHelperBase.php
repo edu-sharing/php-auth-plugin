@@ -13,7 +13,7 @@ class EduSharingHelperBase {
     public string $privateKey;
     public string $appId;
     public string $language = 'de';
-    private CurlHandler $curlHandler;
+    public CurlHandler $curlHandler;
 
     /**
      * @param string $baseUrl

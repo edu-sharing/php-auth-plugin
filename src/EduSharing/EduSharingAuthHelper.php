@@ -57,17 +57,22 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract
      */
     public function getTicketForUser(string $username): string {
         $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/authentication/v1/appauth/' . rawurlencode($username), [
-            CURLOPT_POST => 1,
-            CURLOPT_FAILONERROR => false,
+            CURLOPT_POST           => 1,
+            CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => $this->getSignatureHeaders($username),
+            CURLOPT_HTTPHEADER     => $this->getSignatureHeaders($username),
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_TIMEOUT => 5
+            CURLOPT_TIMEOUT        => 5
         ]);
         if ($curl->content === '') {
             throw new Exception('edu-sharing ticket could not be retrieved: HTTP-Code ' . $curl->info['http_code'] . ': ' . 'No answer from repository. Possibly a timeout while trying to connect to "' . $this->base->baseUrl . '"');
         }
-        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        try {
+            $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        } catch (Exception $exception) {
+            error_log($exception->getMessage());
+            $data = [];
+        }
         $responseOk = $curl->error === 0 && (int)$curl->info['http_code'] ?? 0 === 200;
         if ($responseOk && ($data['userId'] ?? '' === $username || substr($data['userId'], 0, strlen($username) + 1) === $username . '@')) {
             return $data['ticket'];
