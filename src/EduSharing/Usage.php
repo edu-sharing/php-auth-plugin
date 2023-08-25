@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace EduSharingApiClient;
 
@@ -21,10 +21,10 @@ class Usage
     /**
      * Usage constructor
      *
-     * @param string      $nodeId
+     * @param string $nodeId
      * @param string|null $nodeVersion
-     * @param string      $containerId
-     * @param string      $resourceId
+     * @param string $containerId
+     * @param string $resourceId
      * @param string|null $usageId
      */
     public function __construct(string $nodeId, ?string $nodeVersion, string $containerId, string $resourceId, ?string $usageId) {

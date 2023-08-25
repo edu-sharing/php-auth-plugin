@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace EduSharingApiClient;
 
@@ -11,4 +11,6 @@ use Exception;
  *
  * @author Torsten Simon  <simon@edu-sharing.net>
  */
-class NodeDeletedException extends Exception {}
+class NodeDeletedException extends Exception
+{
+}

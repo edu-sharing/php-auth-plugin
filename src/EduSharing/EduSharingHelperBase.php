@@ -1,4 +1,5 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
+
 namespace EduSharingApiClient;
 
 use Exception;
@@ -8,11 +9,12 @@ use Exception;
  *
  * @author Torsten Simon  <simon@edu-sharing.net>
  */
-class EduSharingHelperBase {
-    public string $baseUrl;
-    public string $privateKey;
-    public string $appId;
-    public string $language = 'de';
+class EduSharingHelperBase
+{
+    public string      $baseUrl;
+    public string      $privateKey;
+    public string      $appId;
+    public string      $language = 'de';
     public CurlHandler $curlHandler;
 
     /**
@@ -25,10 +27,10 @@ class EduSharingHelperBase {
      * @throws Exception
      */
     public function __construct(string $baseUrl, string $privateKey, string $appId) {
-        if(! preg_match('/^([a-z]|[A-Z]|[0-9]|[-_])+$/', $appId)) {
+        if (!preg_match('/^([a-z]|[A-Z]|[0-9]|[-_])+$/', $appId)) {
             throw new Exception('The given app id contains invalid characters or symbols');
         }
-        if(str_ends_with($baseUrl, '/')) {
+        if (str_ends_with($baseUrl, '/')) {
             $baseUrl = substr($baseUrl, 0, -1);
         }
         $this->baseUrl     = $baseUrl;
@@ -64,8 +66,7 @@ class EduSharingHelperBase {
      * @param string $language
      * @return void
      */
-    public function setLanguage(string $language): void
-    {
+    public function setLanguage(string $language): void {
         $this->language = $language;
     }
 
@@ -75,8 +76,7 @@ class EduSharingHelperBase {
      * @param string $toSign
      * @return string
      */
-    public function sign(string $toSign): string
-    {
+    public function sign(string $toSign): string {
         $privateKeyId = openssl_get_privatekey($this->privateKey);
         openssl_sign($toSign, $signature, $privateKeyId);
         return base64_encode($signature);
@@ -88,10 +88,9 @@ class EduSharingHelperBase {
      *
      * @throws Exception
      */
-    public function verifyCompatibility(): void
-    {
+    public function verifyCompatibility(): void {
         $minVersion = '8.0';
-        $request = $this->handleCurlRequest($this->baseUrl . '/rest/_about', [
+        $request    = $this->handleCurlRequest($this->baseUrl . '/rest/_about', [
             CURLOPT_HTTPHEADER     => [
                 'Accept: application/json',
                 'Content-Type: application/json',

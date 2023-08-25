@@ -1,4 +1,5 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
+
 namespace EduSharingApiClient;
 
 /**
@@ -6,8 +7,8 @@ namespace EduSharingApiClient;
  *
  * @author Torsten Simon  <simon@edu-sharing.net>
  */
-abstract class EduSharingHelperAbstract {
-
+abstract class EduSharingHelperAbstract
+{
     public EduSharingHelperBase $base;
 
     /**
@@ -59,8 +60,7 @@ abstract class EduSharingHelperAbstract {
      * @param string $toSign
      * @return string
      */
-    protected function sign(string $toSign): string
-    {
+    protected function sign(string $toSign): string {
         return $this->base->sign($toSign);
     }
 }

@@ -1,4 +1,5 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
+
 namespace EduSharingApiClient;
 
 /**
@@ -8,6 +9,7 @@ namespace EduSharingApiClient;
  * Use this as a reference for your custom curl library usage
  *
  * @author Torsten Simon  <simon@edu-sharing.net>
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
 class DefaultCurlHandler extends CurlHandler
 {
@@ -22,7 +24,7 @@ class DefaultCurlHandler extends CurlHandler
         $curl = curl_init($url);
         curl_setopt_array($curl, $curlOptions);
         $content = curl_exec($curl);
-        $error   = curl_errno( $curl );
+        $error   = curl_errno($curl);
         $info    = curl_getinfo($curl);
         curl_close($curl);
         return new CurlResult(!is_string($content) ? '' : $content, $error, $info);

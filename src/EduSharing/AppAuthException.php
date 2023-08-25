@@ -1,4 +1,5 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
+
 namespace EduSharingApiClient;
 
 use Exception;
@@ -8,7 +9,8 @@ use Exception;
  *
  * Class that describes the handling of curl requests
  *
- * @author Torsten Simon  <simon@edu-sharing.net>
+ * @author Torsten Simon   <simon@edu-sharing.net>
+ * @author Marian Ziegler  <ziegler@edu-sharing.net>
  */
 class AppAuthException extends Exception
 {
@@ -18,6 +20,7 @@ class AppAuthException extends Exception
         "The ip your client is using for request is not known by the repository. Please add the ip into your 'host_aliases' app properties file"
         => ['INVALID_HOST']
     ];
+
     /**
      * AppAuthException constructor
      *
@@ -34,10 +37,10 @@ class AppAuthException extends Exception
      * @return string
      */
     private function getExplanation(string $message): string {
-        foreach(static::KNOWN_ERRORS as $desc => $keys) {
-            foreach($keys as $k) {
-                if(str_contains($message, $k))
-                return $desc . '(' . $message . ')';
+        foreach (static::KNOWN_ERRORS as $desc => $keys) {
+            foreach ($keys as $k) {
+                if (str_contains($message, $k))
+                    return $desc . '(' . $message . ')';
             }
         }
         return $message;

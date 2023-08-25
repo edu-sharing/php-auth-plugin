@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace EduSharingApiClient;
 
@@ -9,7 +9,7 @@ namespace EduSharingApiClient;
  */
 class DisplayMode
 {
-    const INLINE = 'inline';
-    const EMBED = 'embed';
+    const INLINE  = 'inline';
+    const EMBED   = 'embed';
     const DYNAMIC = 'dynamic';
 }

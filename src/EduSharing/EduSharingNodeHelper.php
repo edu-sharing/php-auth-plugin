@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace EduSharingApiClient;
 
@@ -9,8 +9,10 @@ use JsonException;
  * Class EduSharingNodeHelper
  *
  * @author Torsten Simon  <simon@edu-sharing.net>
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
-class EduSharingNodeHelper extends EduSharingHelperAbstract  {
+class EduSharingNodeHelper extends EduSharingHelperAbstract
+{
     private EduSharingNodeHelperConfig $config;
 
     public function __construct(EduSharingHelperBase $base, EduSharingNodeHelperConfig $config) {
@@ -46,9 +48,9 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
         $headers   = $this->getSignatureHeaders($ticket);
         $headers[] = $this->getRESTAuthenticationHeader($ticket);
         $curl      = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/repository/-home-', [
-            CURLOPT_FAILONERROR   => false,
-            CURLOPT_POST          => 1,
-            CURLOPT_POSTFIELDS    => json_encode([
+            CURLOPT_FAILONERROR    => false,
+            CURLOPT_POST           => 1,
+            CURLOPT_POSTFIELDS     => json_encode([
                 'appId'       => $this->base->appId,
                 'courseId'    => $containerId,
                 'resourceId'  => $resourceId,
@@ -58,7 +60,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
-        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        $data      = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200) {
             return new Usage($data['parentNodeId'], $nodeVersion, $containerId, $resourceId, $data['nodeId']);
         }
@@ -90,10 +92,10 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
-        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        $data      = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200 && isset($data['usages'])) {
-            foreach($data['usages'] as $usage) {
-                if((string)$usage['appId'] === $this->base->appId && (string)$usage['courseId'] === $containerId && (string)$usage['resourceId'] === $resourceId) {
+            foreach ($data['usages'] as $usage) {
+                if ((string)$usage['appId'] === $this->base->appId && (string)$usage['courseId'] === $containerId && (string)$usage['resourceId'] === $resourceId) {
                     return isset($usage['nodeId']) ? (string)$usage['nodeId'] : null;
                 }
             }
@@ -125,25 +127,25 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
     public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, array $renderingParams = null): array {
         $url = $this->base->baseUrl . '/rest/rendering/v1/details/-home-/' . rawurlencode($usage->nodeId);
         $url .= '?displayMode=' . rawurlencode($displayMode);
-        if($usage->nodeVersion !== null) {
+        if ($usage->nodeVersion !== null) {
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
         $headers = $this->getUsageSignatureHeaders($usage);
         $curl    = $this->base->handleCurlRequest($url, [
-            CURLOPT_FAILONERROR => false,
-            CURLOPT_POST => 1,
-            CURLOPT_POSTFIELDS => json_encode($renderingParams),
+            CURLOPT_FAILONERROR    => false,
+            CURLOPT_POST           => 1,
+            CURLOPT_POSTFIELDS     => json_encode($renderingParams),
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => $headers
+            CURLOPT_HTTPHEADER     => $headers
         ]);
-        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        $data    = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         $this->handleURLMapping($data, $usage);
         if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 200) {
             return $data;
         }
         if ((int)($curl->info['http_code'] ?? 0) === 403) {
             throw new UsageDeletedException('the given usage is deleted and the requested node is not public');
-        } else if ((int)($curl->info['http_code'] ?? 0) === 404){
+        } else if ((int)($curl->info['http_code'] ?? 0) === 404) {
             throw new NodeDeletedException('the given node is already deleted ' . $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
         } else {
             throw new Exception('fetching node by usage failed ' . $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
@@ -166,14 +168,14 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      * @throws Exception
      */
     public function deleteUsage(string $nodeId, string $usageId): void {
-        $headers = $this->getSignatureHeaders($nodeId.$usageId);
+        $headers = $this->getSignatureHeaders($nodeId . $usageId);
         $curl    = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/node/' . rawurlencode($nodeId) . '/' . rawurlencode($usageId), [
-            CURLOPT_FAILONERROR => false,
-            CURLOPT_CUSTOMREQUEST => 'DELETE',
+            CURLOPT_FAILONERROR    => false,
+            CURLOPT_CUSTOMREQUEST  => 'DELETE',
             CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER => $headers
+            CURLOPT_HTTPHEADER     => $headers
         ]);
-        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        $data    = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 200) {
             return;
         }
@@ -190,20 +192,19 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      * @param $data
      * @param Usage $usage
      */
-    private function handleURLMapping(&$data, Usage $usage): void
-    {
-        if(!$this->config->urlHandling->enabled) {
+    private function handleURLMapping(&$data, Usage $usage): void {
+        if (!$this->config->urlHandling->enabled) {
             return;
         }
-        if(isset($data['node'])) {
+        if (isset($data['node'])) {
             $params = '&usageId=' . urlencode($usage->usageId) . '&nodeId=' . urlencode($usage->nodeId) . '&resourceId=' . urlencode($usage->resourceId) . '&containerId=' . urlencode($usage->containerId);
-            if($usage->nodeVersion !== null) {
+            if ($usage->nodeVersion !== null) {
                 $params .= '&nodeVersion=' . urlencode($usage->nodeVersion);
             }
-            $endpointBase = $this->config->urlHandling->endpointURL . (str_contains($this->config->urlHandling->endpointURL, '?') ? '&' : '?');
-            $contentUrl   = $endpointBase . 'mode=content' . $params;
-            $data['url']  = [
-                'content' => $contentUrl,
+            $endpointBase           = $this->config->urlHandling->endpointURL . (str_contains($this->config->urlHandling->endpointURL, '?') ? '&' : '?');
+            $contentUrl             = $endpointBase . 'mode=content' . $params;
+            $data['url']            = [
+                'content'  => $contentUrl,
                 'download' => $endpointBase . 'mode=download' . $params
             ];
             $data['detailsSnippet'] = str_replace('{{{LMS_INLINE_HELPER_SCRIPT}}}', $contentUrl, $data['detailsSnippet']);
@@ -221,19 +222,18 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      * @throws UsageDeletedException
      * @throws Exception
      */
-    public function getRedirectUrl(string $mode, Usage $usage): string
-    {
+    public function getRedirectUrl(string $mode, Usage $usage): string {
         $headers = $this->getUsageSignatureHeaders($usage);
         $node    = $this->getNodeByUsage($usage);
         $params  = '';
-        foreach($headers as $header) {
-            if(! str_starts_with($header, 'X-')){
+        foreach ($headers as $header) {
+            if (!str_starts_with($header, 'X-')) {
                 continue;
             }
             $header = explode(': ', $header);
             $params .= '&' . $header[0] . '=' . urlencode($header[1]);
         }
-        if($mode === 'content') {
+        if ($mode === 'content') {
             $url    = $node['node']['content']['url'] ?? '';
             $params .= '&closeOnBack=true';
         } else if ($mode === 'download') {
@@ -250,9 +250,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract  {
      * @param Usage $usage
      * @return array
      */
-    private function getUsageSignatureHeaders(Usage $usage): array
-    {
-        $headers = $this->getSignatureHeaders($usage->usageId);
+    private function getUsageSignatureHeaders(Usage $usage): array {
+        $headers   = $this->getSignatureHeaders($usage->usageId);
         $headers[] = 'X-Edu-Usage-Node-Id: ' . $usage->nodeId;
         $headers[] = 'X-Edu-Usage-Course-Id: ' . $usage->containerId;
         $headers[] = 'X-Edu-Usage-Resource-Id: ' . $usage->resourceId;

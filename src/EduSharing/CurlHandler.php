@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace EduSharingApiClient;
 
@@ -8,18 +8,17 @@ namespace EduSharingApiClient;
  * Class that describes the handling of curl requests
  *
  * @author Torsten Simon  <simon@edu-sharing.net>
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
  */
 abstract class CurlHandler
 {
-    public const METHOD_GET = 'get';
-    public const METHOD_POST = 'post';
-
-    public const METHOD_PUT = 'put';
-
-    protected const METHODS = [self::METHOD_GET, self::METHOD_POST, self::METHOD_PUT];
-
+    public const    METHOD_GET  = 'get';
+    public const    METHOD_POST = 'post';
+    public const    METHOD_PUT  = 'put';
+    protected const METHODS     = [self::METHOD_GET, self::METHOD_POST, self::METHOD_PUT];
 
     protected string $method = 'get';
+
     /**
      * Function handleCurlRequest
      *

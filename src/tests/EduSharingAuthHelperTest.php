@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace tests;
 
@@ -10,8 +10,18 @@ use Exception;
 use JsonException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class EduSharingAuthHelperTest
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ */
 class EduSharingAuthHelperTest extends TestCase
 {
+    /**
+     * Function testGetTicketAuthenticationInfoReturnsDecodedDataFromCurlIfAllOk
+     *
+     * @return void
+     */
     public function testGetTicketAuthenticationInfoReturnsDecodedDataFromCurlIfAllOk(): void {
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
@@ -45,6 +55,11 @@ class EduSharingAuthHelperTest extends TestCase
         $authHelper->getTicketAuthenticationInfo('test');
     }
 
+    /**
+     * Function testGetTicketAuthenticationInfoThrowsJsonExceptionOnInvalidJsonResponse
+     *
+     * @return void
+     */
     public function testGetTicketAuthenticationInfoThrowsJsonExceptionOnInvalidJsonResponse(): void {
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
@@ -59,6 +74,11 @@ class EduSharingAuthHelperTest extends TestCase
         $authHelper->getTicketAuthenticationInfo('test');
     }
 
+    /**
+     * Function testGetTicketAuthenticationInfoThrowsExceptionIfStatusCodeIsNotOk
+     *
+     * @return void
+     */
     public function testGetTicketAuthenticationInfoThrowsExceptionIfStatusCodeIsNotOk(): void {
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
@@ -74,6 +94,11 @@ class EduSharingAuthHelperTest extends TestCase
         $authHelper->getTicketAuthenticationInfo('test');
     }
 
+    /**
+     * Function testGetTicketForUserThrowsExceptionOnEmptyCurlResult
+     *
+     * @return void
+     */
     public function testGetTicketForUserThrowsExceptionOnEmptyCurlResult(): void {
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
@@ -92,6 +117,11 @@ class EduSharingAuthHelperTest extends TestCase
         $authHelper->getTicketForUser('test');
     }
 
+    /**
+     * Function testGetTicketForUserThrowsJsonExceptionOnInvalidJson
+     *
+     * @return void
+     */
     public function testGetTicketForUserThrowsJsonExceptionOnInvalidJson(): void {
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
@@ -109,6 +139,11 @@ class EduSharingAuthHelperTest extends TestCase
         $authHelper->getTicketForUser('test');
     }
 
+    /**
+     * Function testGetTicketForUserThrowsAppAuthExceptionOnBadResponse
+     *
+     * @return void
+     */
     public function testGetTicketForUserThrowsAppAuthExceptionOnBadResponse(): void {
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
@@ -127,6 +162,11 @@ class EduSharingAuthHelperTest extends TestCase
         $authHelper->getTicketForUser('test');
     }
 
+    /**
+     * Function testGetTicketForUserReturnsReturnsTicketDataIfUserIdMatchesExactly
+     *
+     * @return void
+     */
     public function testGetTicketForUserReturnsReturnsTicketDataIfUserIdMatchesExactly(): void {
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
@@ -147,6 +187,11 @@ class EduSharingAuthHelperTest extends TestCase
         }
     }
 
+    /**
+     * Function testGetTicketForUserReturnsReturnsTicketDataIfUserIdIsEmail
+     *
+     * @return void
+     */
     public function testGetTicketForUserReturnsReturnsTicketDataIfUserIdIsEmail(): void {
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)

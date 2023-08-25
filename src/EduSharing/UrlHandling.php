@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace EduSharingApiClient;
 
@@ -13,8 +13,7 @@ namespace EduSharingApiClient;
  */
 class UrlHandling
 {
-
-    public bool $enabled;
+    public bool   $enabled;
     public string $endpointURL;
 
     /**

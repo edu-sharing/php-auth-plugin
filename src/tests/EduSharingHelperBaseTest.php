@@ -1,4 +1,4 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
 
 namespace tests;
 
@@ -8,19 +8,39 @@ use Exception;
 use JsonException;
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Class EduSharingHelperBaseTest
+ *
+ * @author Marian Ziegler <ziegler@edu-sharing.net>
+ */
 class EduSharingHelperBaseTest extends TestCase
 {
+    /**
+     * Function testConstructorThrowsExceptionOnInvalidCharsInAppId
+     *
+     * @return void
+     */
     public function testConstructorThrowsExceptionOnInvalidCharsInAppId(): void {
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('The given app id contains invalid characters or symbols');
         new EduSharingHelperBase('test', 'test', 'test*~');
     }
 
+    /**
+     * Function testConstructorTrimsTrailingSlashFromUrl
+     *
+     * @return void
+     */
     public function testConstructorTrimsTrailingSlashFromUrl(): void {
         $base = new EduSharingHelperBase('abcde/', 'test', 'test');
         $this->assertEquals('abcde', $base->baseUrl);
     }
 
+    /**
+     * Function testVerifyCompatibilityThrowsExceptionIfCurlResultIsNotOk
+     *
+     * @return void
+     */
     public function testVerifyCompatibilityThrowsExceptionIfCurlResultIsNotOk(): void {
         $mock = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs(['abcde/', 'test', 'test'])
@@ -34,6 +54,11 @@ class EduSharingHelperBaseTest extends TestCase
         $mock->verifyCompatibility();
     }
 
+    /**
+     * Function testVerifyCompatibilityThrowsJsonExceptionOnInvalidJson
+     *
+     * @return void
+     */
     public function testVerifyCompatibilityThrowsJsonExceptionOnInvalidJson(): void {
         $mock = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs(['abcde/', 'test', 'test'])
@@ -46,6 +71,11 @@ class EduSharingHelperBaseTest extends TestCase
         $mock->verifyCompatibility();
     }
 
+    /**
+     * Function testVerifyCompatibilityThrowsExceptionOnIncompatibleVersion
+     *
+     * @return void
+     */
     public function testVerifyCompatibilityThrowsExceptionOnIncompatibleVersion(): void {
         $mock = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs(['abcde/', 'test', 'test'])
@@ -59,6 +89,11 @@ class EduSharingHelperBaseTest extends TestCase
         $mock->verifyCompatibility();
     }
 
+    /**
+     * Function testVerifyCompatibilityThrowsNoExceptionOnCompatibleVersion
+     *
+     * @return void
+     */
     public function testVerifyCompatibilityThrowsNoExceptionOnCompatibleVersion(): void {
         $mock = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs(['abcde/', 'test', 'test'])

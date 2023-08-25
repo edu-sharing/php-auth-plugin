@@ -1,4 +1,5 @@
-<?php declare(strict_types = 1);
+<?php declare(strict_types=1);
+
 namespace EduSharingApiClient;
 
 use Exception;
@@ -8,7 +9,8 @@ use Exception;
  *
  * @author Torsten Simon  <simon@edu-sharing.net>
  */
-class EduSharingHelper {
+class EduSharingHelper
+{
     /**
      * Function generateKeyPair
      *
@@ -36,8 +38,7 @@ class EduSharingHelper {
      * Generates an edu-sharing compatible xml file for registering the application
      * This is a very basic function and is only intended for demonstration or manual use. Data is not escaped!
      */
-    public static function generateEduAppXMLData(string $appId, string $publicKey, string $type = 'LMS', string $publicIP = '*'): string
-    {
+    public static function generateEduAppXMLData(string $appId, string $publicKey, string $type = 'LMS', string $publicIP = '*'): string {
         return '<?xml version="1.0" encoding="UTF-8"?>
                 <!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
                 <properties>
