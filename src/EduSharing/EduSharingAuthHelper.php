@@ -73,7 +73,8 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract
             error_log($exception->getMessage());
             $data = [];
         }
-        $responseOk = $curl->error === 0 && (int)$curl->info['http_code'] ?? 0 === 200;
+        $gotInvalidHostError = str_contains($data['message'] ?? '', 'INVALID_HOST');
+        $responseOk = $curl->error === 0 && !$gotInvalidHostError && (int)$curl->info['http_code'] ?? 0 === 200;
         if ($responseOk && ($data['userId'] ?? '' === $username || substr($data['userId'], 0, strlen($username) + 1) === $username . '@')) {
             return $data['ticket'];
         }

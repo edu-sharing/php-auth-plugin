@@ -61,7 +61,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
             CURLOPT_HTTPHEADER     => $headers
         ]);
         $data      = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
-        if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200) {
+        if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200 && empty($data['error'])) {
             return new Usage($data['parentNodeId'], $nodeVersion, $containerId, $resourceId, $data['nodeId']);
         }
         throw new Exception('creating usage failed ' . $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);

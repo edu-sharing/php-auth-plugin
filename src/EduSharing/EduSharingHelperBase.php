@@ -30,9 +30,7 @@ class EduSharingHelperBase
         if (!preg_match('/^([a-z]|[A-Z]|[0-9]|[-_])+$/', $appId)) {
             throw new Exception('The given app id contains invalid characters or symbols');
         }
-        if (str_ends_with($baseUrl, '/')) {
-            $baseUrl = substr($baseUrl, 0, -1);
-        }
+        $baseUrl           = rtrim($baseUrl, '/');
         $this->baseUrl     = $baseUrl;
         $this->privateKey  = $privateKey;
         $this->appId       = $appId;
