@@ -1,10 +1,15 @@
-<?php
+<?php declare(strict_types=1);
 
-namespace EduSharing;
+namespace EduSharingApiClient;
 
+/**
+ * Class DisplayMode
+ *
+ * @author Torsten Simon  <simon@edu-sharing.net>
+ */
 class DisplayMode
 {
-    const Inline = 'inline';
-    const Embed = 'embed';
-    const Dynamic = 'dynamic';
+    const INLINE  = 'inline';
+    const EMBED   = 'embed';
+    const DYNAMIC = 'dynamic';
 }

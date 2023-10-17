@@ -1,34 +1,48 @@
-<?php
-namespace EduSharing;
+<?php declare(strict_types=1);
 
-abstract class EduSharingHelperAbstract {
+namespace EduSharingApiClient;
 
-    protected EduSharingHelperBase $base;
-    public function __construct(
-        EduSharingHelperBase $base
-    ) {
+/**
+ * Class EduSharingHelperAbstract
+ *
+ * @author Torsten Simon  <simon@edu-sharing.net>
+ */
+abstract class EduSharingHelperAbstract
+{
+    public EduSharingHelperBase $base;
+
+    /**
+     * EduSharingHelperAbstract constructor
+     *
+     * @param EduSharingHelperBase $base
+     */
+    public function __construct(EduSharingHelperBase $base) {
         $this->base = $base;
     }
 
     /**
+     * Function getRESTAuthenticationHeader
+     *
      * Generates the header to use for a given ticket to authenticate with any edu-sharing api endpoint
      * @param string $ticket
      * The ticket, obtained by @getTicketForUser
      * @return string
      */
-    public function getRESTAuthenticationHeader(string $ticket): string
-    {
+    public function getRESTAuthenticationHeader(string $ticket): string {
         return 'Authorization: EDU-TICKET ' . $ticket;
     }
 
-    protected function getSignatureHeaders(
-        string $signString,
-        string $accept = 'application/json',
-        string $contentType = 'application/json'
-    ): array
-    {
-        $ts = time() * 1000;
-        $toSign = $this->base->appId . $signString . $ts;
+    /**
+     * Function getSignatureHeaders
+     *
+     * @param string $signString
+     * @param string $accept
+     * @param string $contentType
+     * @return string[]
+     */
+    protected function getSignatureHeaders(string $signString, string $accept = 'application/json', string $contentType = 'application/json'): array {
+        $ts        = time() * 1000;
+        $toSign    = $this->base->appId . $signString . $ts;
         $signature = $this->sign($toSign);
         return [
             'Accept: ' . $accept,
@@ -40,8 +54,13 @@ abstract class EduSharingHelperAbstract {
         ];
     }
 
-    protected function sign(string $toSign): string
-    {
+    /**
+     * Function sign
+     *
+     * @param string $toSign
+     * @return string
+     */
+    protected function sign(string $toSign): string {
         return $this->base->sign($toSign);
     }
 }
