@@ -15,7 +15,8 @@ abstract class CurlHandler
     public const    METHOD_GET  = 'get';
     public const    METHOD_POST = 'post';
     public const    METHOD_PUT  = 'put';
-    protected const METHODS     = [self::METHOD_GET, self::METHOD_POST, self::METHOD_PUT];
+    public const    METHOD_DELETE = 'delete';
+    protected const METHODS       = [self::METHOD_GET, self::METHOD_POST, self::METHOD_PUT, self::METHOD_DELETE];
 
     protected string $method = 'get';
 

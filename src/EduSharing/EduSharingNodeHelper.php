@@ -164,7 +164,6 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @param string $usageId
      * The usage id
      * @throws UsageDeletedException
-     * @throws JsonException
      * @throws Exception
      */
     public function deleteUsage(string $nodeId, string $usageId): void {
@@ -175,14 +174,13 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
-        $data    = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 200) {
             return;
         }
         if ((int)($curl->info['http_code'] ?? 0) === 404) {
             throw new UsageDeletedException('the given usage is already deleted or does not exist');
         } else {
-            throw new Exception('deleting usage failed ' . $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
+            throw new Exception('deleting usage failed with curl error ' . $curl->error);
         }
     }
 
