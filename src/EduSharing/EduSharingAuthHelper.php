@@ -51,19 +51,26 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract
      * Fetches the edu-sharing ticket for a given username
      * @param string $username
      * The username you want to generate a ticket for
+     * @param array|null $additionalFields
+     * additional post fields to submit
      * @return string
      * The ticket, which you can use as an authentication header, see @getRESTAuthenticationHeader
+     * @throws AppAuthException
      * @throws Exception
      */
-    public function getTicketForUser(string $username): string {
-        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/authentication/v1/appauth/' . rawurlencode($username), [
+    public function getTicketForUser(string $username, ?array $additionalFields = null): string {
+        $curlOptions = [
             CURLOPT_POST           => 1,
             CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $this->getSignatureHeaders($username),
             CURLOPT_CONNECTTIMEOUT => 5,
             CURLOPT_TIMEOUT        => 5
-        ]);
+        ];
+        if ($additionalFields !== null) {
+            $curlOptions[CURLOPT_POSTFIELDS] = json_encode($additionalFields, 512, JSON_THROW_ON_ERROR);
+        }
+        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/authentication/v1/appauth/' . rawurlencode($username), $curlOptions);
         if ($curl->content === '') {
             throw new Exception('edu-sharing ticket could not be retrieved: HTTP-Code ' . $curl->info['http_code'] . ': ' . 'No answer from repository. Possibly a timeout while trying to connect to "' . $this->base->baseUrl . '"');
         }
@@ -73,8 +80,8 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract
             error_log($exception->getMessage());
             $data = [];
         }
-        $gotInvalidHostError = str_contains($data['message'] ?? '', 'INVALID_HOST');
-        $responseOk = $curl->error === 0 && !$gotInvalidHostError && (int)$curl->info['http_code'] ?? 0 === 200;
+        $gotError   = !empty($data['error']);
+        $responseOk = $curl->error === 0 && !$gotError && (int)$curl->info['http_code'] ?? 0 === 200;
         if ($responseOk && ($data['userId'] ?? '' === $username || substr($data['userId'], 0, strlen($username) + 1) === $username . '@')) {
             return $data['ticket'];
         }
