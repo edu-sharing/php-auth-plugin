@@ -27,8 +27,8 @@ class EduSharingHelperBase
      * @throws Exception
      */
     public function __construct(string $baseUrl, string $privateKey, string $appId) {
-        if (!preg_match('/^([a-z]|[A-Z]|[0-9]|[-_])+$/', $appId)) {
-            throw new Exception('The given app id contains invalid characters or symbols');
+        if (!preg_match('/^([a-z]|[A-Z]|[0-9]|[-_]|[.])+$/', $appId)) {
+            throw new InvalidAppIdException('The given app id contains invalid characters or symbols');
         }
         $baseUrl           = rtrim($baseUrl, '/');
         $this->baseUrl     = $baseUrl;

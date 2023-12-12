@@ -255,4 +255,23 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
         $headers[] = 'X-Edu-Usage-Resource-Id: ' . $usage->resourceId;
         return $headers;
     }
+
+    /**
+     * Function getPreview
+     *
+     * @param Usage $usage
+     * @return CurlResult
+     */
+    public function getPreview(Usage $usage): CurlResult {
+        $url = $this->base->baseUrl . '/preview?nodeId=' . rawurlencode($usage->nodeId) . '&maxWidth=400&maxHeight=400&crop=true';
+        if ($usage->nodeVersion !== null) {
+            $url .= '&version=' . rawurlencode($usage->nodeVersion);
+        }
+        $headers = $this->getUsageSignatureHeaders($usage);
+        return $this->base->handleCurlRequest($url, [
+            CURLOPT_FAILONERROR    => false,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HTTPHEADER     => $headers
+        ]);
+    }
 }
