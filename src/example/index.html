@@ -45,6 +45,11 @@
                 usage.action = 'GET_NODE';
                 const render = await fetchAPI(usage);
                 document.querySelector('#render').innerHTML = render.detailsSnippet;
+                document.querySelector('#preview').src = 'example-api.php?action=PREVIEW' +
+                    '&nodeId=' + usage['nodeId'] +
+                    "&containerId=" + usage['containerId'] +
+                    "&resourceId=" + usage['resourceId'] +
+                    "&usageId=" + usage['usageId'];
                 document.querySelector('#api').innerHTML = JSON.stringify(render.url, null, 4);
             }
 
@@ -123,6 +128,7 @@
     <button onclick="deleteUsage()">Delete current Usage</button>
 </div>
 <div id="render"></div>
+<img id="preview">
 <pre id="api" style="display: none"></pre>
 
 </body>

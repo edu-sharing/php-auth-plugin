@@ -1,5 +1,6 @@
 <?php
-namespace EduSharing;
+namespace EduSharingApiClientExample;
+use EduSharingApiClient;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 const APP_ID = 'sample-app';
@@ -18,10 +19,10 @@ if(!$privatekey) {
     $key['privatekey'] = $privatekey;
 }
 // init the base class instance we use for all helpers
-$base = new EduSharingHelperBase(BASE_URL_INTERNAL, $key['privatekey'], APP_ID);
-$nodeHelper = new EduSharingNodeHelper($base,
-    new EduSharingNodeHelperConfig(
-        new UrlHandling(true, 'example-api.php?action=REDIRECT')
+$base = new \EduSharingApiClient\EduSharingHelperBase(BASE_URL_INTERNAL, $key['privatekey'], APP_ID);
+$nodeHelper = new \EduSharingApiClient\EduSharingNodeHelper($base,
+    new \EduSharingApiClient\EduSharingNodeHelperConfig(
+        new \EduSharingApiClient\UrlHandling(true, 'example-api.php?action=REDIRECT')
     )
 );
 $postData = json_decode(file_get_contents('php://input'));
@@ -37,7 +38,7 @@ try {
         $result = BASE_URL_EXTERNAL;
     } else if ($action === 'GET_NODE') {
         $result = $nodeHelper->getNodeByUsage(
-            new Usage(
+            new \EduSharingApiClient\Usage(
                 $postData->nodeId,
                 $postData->nodeVersion,
                 $postData->containerId,
@@ -49,7 +50,7 @@ try {
         // in a real application, you should check if the user is actually allowed to access this usage!
         $url = $nodeHelper->getRedirectUrl(
             $_GET['mode'],
-            new Usage(
+            new \EduSharingApiClient\Usage(
                 $_GET['nodeId'],
                 $_GET['nodeVersion'] ?? null,
                 $_GET['containerId'],
@@ -58,6 +59,19 @@ try {
             )
         );
         header("Location: $url");
+    }  else if ($action === 'PREVIEW') {
+        // in a real application, you should check if the user is actually allowed to access this usage!
+        $data = $nodeHelper->getPreview(
+            new \EduSharingApiClient\Usage(
+                $_GET['nodeId'],
+                $_GET['nodeVersion'] ?? null,
+                $_GET['containerId'],
+                $_GET['resourceId'],
+                $_GET['usageId'],
+            )
+        );
+        header("Content-Type: image/*");
+        echo $data->content;
     } else if ($action === 'CREATE_USAGE') {
         $result = $nodeHelper->createUsage(
             $postData->ticket,
