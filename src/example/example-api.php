@@ -84,7 +84,7 @@ try {
             $postData->usageId
         );
     } else if ($action === 'TICKET') {
-        $authHelper = new EduSharingAuthHelper($base);
+        $authHelper = new \EduSharingApiClient\EduSharingAuthHelper($base);
         $ticket = $authHelper->getTicketForUser(USERNAME);
         $result = $ticket;
     }
