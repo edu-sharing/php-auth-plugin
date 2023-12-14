@@ -115,22 +115,24 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * The displayMode
      * This will ONLY change the content representation inside the "detailsSnippet" return value
      * @param array|null $renderingParams
+     * @param int|null $userId
+     * The userId can be included for tracking and statistics purposes
      * @return array
      * Returns an object containing a "detailsSnippet" representation
      * as well as the full node as provided by the REST API
      * Please refer to the edu-sharing REST documentation for more details
+     * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
-     * @throws JsonException
-     * @throws Exception
      */
-    public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, array $renderingParams = null): array {
+    public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, ?array $renderingParams = null, ?int $userId = null): array {
         $url = $this->base->baseUrl . '/rest/rendering/v1/details/-home-/' . rawurlencode($usage->nodeId);
         $url .= '?displayMode=' . rawurlencode($displayMode);
         if ($usage->nodeVersion !== null) {
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
-        $headers = $this->getUsageSignatureHeaders($usage);
+        $headers = $this->getUsageSignatureHeaders($usage, $userId);
+        error_log(json_encode($headers));
         $curl    = $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_POST           => 1,
@@ -214,15 +216,17 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      *
      * @param string $mode
      * @param Usage $usage
+     * @param int|null $userId
      * @return string
      * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
      * @throws Exception
      */
-    public function getRedirectUrl(string $mode, Usage $usage): string {
+    public function getRedirectUrl(string $mode, Usage $usage, ?int $userId = null): string {
         $headers = $this->getUsageSignatureHeaders($usage);
-        $node    = $this->getNodeByUsage($usage);
+        // DisplayMode::PRERENDER is used in order to differentiate for tracking and statistics
+        $node    = $this->getNodeByUsage($usage, DisplayMode::PRERENDER, $userId);
         $params  = '';
         foreach ($headers as $header) {
             if (!str_starts_with($header, 'X-')) {
@@ -246,13 +250,17 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * Function getUsageSignatureHeaders
      *
      * @param Usage $usage
+     * @param int|null $userId
      * @return array
      */
-    private function getUsageSignatureHeaders(Usage $usage): array {
+    private function getUsageSignatureHeaders(Usage $usage, ?int $userId = null): array {
         $headers   = $this->getSignatureHeaders($usage->usageId);
         $headers[] = 'X-Edu-Usage-Node-Id: ' . $usage->nodeId;
         $headers[] = 'X-Edu-Usage-Course-Id: ' . $usage->containerId;
         $headers[] = 'X-Edu-Usage-Resource-Id: ' . $usage->resourceId;
+        if ($userId !== null) {
+            $headers[] = 'X-Edu-User-Id: ' . $userId;
+        }
         return $headers;
     }
 
