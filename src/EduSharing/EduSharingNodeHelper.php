@@ -115,7 +115,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * The displayMode
      * This will ONLY change the content representation inside the "detailsSnippet" return value
      * @param array|null $renderingParams
-     * @param int|null $userId
+     * @param string|null $userId
      * The userId can be included for tracking and statistics purposes
      * @return array
      * Returns an object containing a "detailsSnippet" representation
@@ -125,7 +125,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @throws NodeDeletedException
      * @throws UsageDeletedException
      */
-    public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, ?array $renderingParams = null, ?int $userId = null): array {
+    public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, ?array $renderingParams = null, ?string $userId = null): array {
         $url = $this->base->baseUrl . '/rest/rendering/v1/details/-home-/' . rawurlencode($usage->nodeId);
         $url .= '?displayMode=' . rawurlencode($displayMode);
         if ($usage->nodeVersion !== null) {
@@ -216,14 +216,14 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      *
      * @param string $mode
      * @param Usage $usage
-     * @param int|null $userId
+     * @param string|null $userId
      * @return string
      * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
      * @throws Exception
      */
-    public function getRedirectUrl(string $mode, Usage $usage, ?int $userId = null): string {
+    public function getRedirectUrl(string $mode, Usage $usage, ?string $userId = null): string {
         $headers = $this->getUsageSignatureHeaders($usage);
         // DisplayMode::PRERENDER is used in order to differentiate for tracking and statistics
         $node    = $this->getNodeByUsage($usage, DisplayMode::PRERENDER, $userId);
@@ -250,10 +250,10 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * Function getUsageSignatureHeaders
      *
      * @param Usage $usage
-     * @param int|null $userId
+     * @param string|null $userId
      * @return array
      */
-    private function getUsageSignatureHeaders(Usage $usage, ?int $userId = null): array {
+    private function getUsageSignatureHeaders(Usage $usage, ?string $userId = null): array {
         $headers   = $this->getSignatureHeaders($usage->usageId);
         $headers[] = 'X-Edu-Usage-Node-Id: ' . $usage->nodeId;
         $headers[] = 'X-Edu-Usage-Course-Id: ' . $usage->containerId;
