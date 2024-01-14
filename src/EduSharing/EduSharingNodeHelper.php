@@ -132,7 +132,6 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
         $headers = $this->getUsageSignatureHeaders($usage, $userId);
-        error_log(json_encode($headers));
         $curl    = $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_POST           => 1,
@@ -226,7 +225,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
     public function getRedirectUrl(string $mode, Usage $usage, ?string $userId = null): string {
         $headers = $this->getUsageSignatureHeaders($usage);
         // DisplayMode::PRERENDER is used in order to differentiate for tracking and statistics
-        $node    = $this->getNodeByUsage($usage, DisplayMode::PRERENDER, $userId);
+        $node    = $this->getNodeByUsage($usage, DisplayMode::PRERENDER, null, $userId);
         $params  = '';
         foreach ($headers as $header) {
             if (!str_starts_with($header, 'X-')) {
