@@ -58,6 +58,19 @@ try {
             )
         );
         header("Location: $url");
+    }  else if ($action === 'PREVIEW') {
+        // in a real application, you should check if the user is actually allowed to access this usage!
+        $data = $nodeHelper->getPreview(
+            new Usage(
+                $_GET['nodeId'],
+                $_GET['nodeVersion'] ?? null,
+                $_GET['containerId'],
+                $_GET['resourceId'],
+                $_GET['usageId'],
+            )
+        );
+        header("Content-Type: image/*");
+        echo $data->content;
     } else if ($action === 'CREATE_USAGE') {
         $result = $nodeHelper->createUsage(
             $postData->ticket,
