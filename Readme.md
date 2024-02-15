@@ -60,7 +60,7 @@ Simply call `getNodeByUsage` including the usage data you received previously.
 
 You'll get the full node object (see the REST specification) as well as a ready-to-embed HTML snipped (`detailsSnippet`).
 
-#### 2.1 Content + Download Linking
+#### 2.1 Content + Download Linking, Preview
 Since the object you've received is may not publicly available, you need to generate specific urls in order to access it via the current usage.
 
 You'll need an seperat endpoint in your application which verifys access of the current user and then redirect him to edu-sharing.
@@ -93,6 +93,8 @@ This endpoint should then verify your users permissions and call the redirect me
 This method will create a signed url with a current timestamp which will then give the user temporary access to the given object.
 
 The `urls` section you got returned from `getNodeByUsage` already targets the endpoint url you specified.
+
+For preview images, there is the method `getPreview` which will return the binary data of the image. 
 
 ## FAQ
 

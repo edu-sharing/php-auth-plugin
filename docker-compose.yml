@@ -5,8 +5,8 @@ services:
     build:
       context: .
     environment:
-      - BASE_URL_INTERNAL=http://host.docker.internal:8100/edu-sharing
-      - BASE_URL_EXTERNAL=http://repository.127.0.0.1.nip.io:8100/edu-sharing
+      - BASE_URL_INTERNAL=https://repository.8-1.enterprise.134.76.16.75.nip.io/edu-sharing
+      - BASE_URL_EXTERNAL=https://repository.8-1.enterprise.134.76.16.75.nip.io/edu-sharing
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:

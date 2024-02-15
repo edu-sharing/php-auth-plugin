@@ -9,7 +9,8 @@ namespace EduSharingApiClient;
  */
 class DisplayMode
 {
-    const INLINE  = 'inline';
-    const EMBED   = 'embed';
-    const DYNAMIC = 'dynamic';
+    const INLINE    = 'inline';
+    const EMBED     = 'embed';
+    const DYNAMIC   = 'dynamic';
+    const PRERENDER = 'prerender';
 }

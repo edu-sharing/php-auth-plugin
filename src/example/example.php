@@ -5,7 +5,7 @@
  * On first run, a properties.xml file will be created
  * Upload this file to your target edu-sharing (Admin-Tools -> Remote Systems -> Choose XML-File)
  */
-namespace EduSharing;
+namespace EduSharingApiClient;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

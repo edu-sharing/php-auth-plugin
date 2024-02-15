@@ -1,5 +1,5 @@
 <?php
-namespace EduSharing;
+namespace EduSharingApiClient;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 const APP_ID = 'sample-app';

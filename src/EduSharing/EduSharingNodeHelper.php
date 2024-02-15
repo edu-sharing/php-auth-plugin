@@ -115,22 +115,23 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * The displayMode
      * This will ONLY change the content representation inside the "detailsSnippet" return value
      * @param array|null $renderingParams
+     * @param string|null $userId
+     * The userId can be included for tracking and statistics purposes
      * @return array
      * Returns an object containing a "detailsSnippet" representation
      * as well as the full node as provided by the REST API
      * Please refer to the edu-sharing REST documentation for more details
+     * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
-     * @throws JsonException
-     * @throws Exception
      */
-    public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, array $renderingParams = null): array {
+    public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, ?array $renderingParams = null, ?string $userId = null): array {
         $url = $this->base->baseUrl . '/rest/rendering/v1/details/-home-/' . rawurlencode($usage->nodeId);
         $url .= '?displayMode=' . rawurlencode($displayMode);
         if ($usage->nodeVersion !== null) {
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
-        $headers = $this->getUsageSignatureHeaders($usage);
+        $headers = $this->getUsageSignatureHeaders($usage, $userId);
         $curl    = $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_POST           => 1,
@@ -164,7 +165,6 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @param string $usageId
      * The usage id
      * @throws UsageDeletedException
-     * @throws JsonException
      * @throws Exception
      */
     public function deleteUsage(string $nodeId, string $usageId): void {
@@ -175,14 +175,13 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
-        $data    = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 200) {
             return;
         }
         if ((int)($curl->info['http_code'] ?? 0) === 404) {
             throw new UsageDeletedException('the given usage is already deleted or does not exist');
         } else {
-            throw new Exception('deleting usage failed ' . $curl->info['http_code'] . ': ' . $data['error'] . ' ' . $data['message']);
+            throw new Exception('deleting usage failed with curl error ' . $curl->error);
         }
     }
 
@@ -216,15 +215,17 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      *
      * @param string $mode
      * @param Usage $usage
+     * @param string|null $userId
      * @return string
      * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
      * @throws Exception
      */
-    public function getRedirectUrl(string $mode, Usage $usage): string {
+    public function getRedirectUrl(string $mode, Usage $usage, ?string $userId = null): string {
         $headers = $this->getUsageSignatureHeaders($usage);
-        $node    = $this->getNodeByUsage($usage);
+        // DisplayMode::PRERENDER is used in order to differentiate for tracking and statistics
+        $node    = $this->getNodeByUsage($usage, DisplayMode::PRERENDER, null, $userId);
         $params  = '';
         foreach ($headers as $header) {
             if (!str_starts_with($header, 'X-')) {
@@ -248,13 +249,36 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * Function getUsageSignatureHeaders
      *
      * @param Usage $usage
+     * @param string|null $userId
      * @return array
      */
-    private function getUsageSignatureHeaders(Usage $usage): array {
+    private function getUsageSignatureHeaders(Usage $usage, ?string $userId = null): array {
         $headers   = $this->getSignatureHeaders($usage->usageId);
         $headers[] = 'X-Edu-Usage-Node-Id: ' . $usage->nodeId;
         $headers[] = 'X-Edu-Usage-Course-Id: ' . $usage->containerId;
         $headers[] = 'X-Edu-Usage-Resource-Id: ' . $usage->resourceId;
+        if ($userId !== null) {
+            $headers[] = 'X-Edu-User-Id: ' . $userId;
+        }
         return $headers;
+    }
+
+    /**
+     * Function getPreview
+     *
+     * @param Usage $usage
+     * @return CurlResult
+     */
+    public function getPreview(Usage $usage): CurlResult {
+        $url = $this->base->baseUrl . '/preview?nodeId=' . rawurlencode($usage->nodeId) . '&maxWidth=400&maxHeight=400&crop=true';
+        if ($usage->nodeVersion !== null) {
+            $url .= '&version=' . rawurlencode($usage->nodeVersion);
+        }
+        $headers = $this->getUsageSignatureHeaders($usage);
+        return $this->base->handleCurlRequest($url, [
+            CURLOPT_FAILONERROR    => false,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HTTPHEADER     => $headers
+        ]);
     }
 }
