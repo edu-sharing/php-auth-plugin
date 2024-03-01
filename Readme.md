@@ -135,3 +135,85 @@ $base->registerCurlHandler(new class extends CurlHandler {
 });
 ```
 Take a look at the `curl.php` file for more details and an example.
+
+
+# Notes for Manual/Custom implementation
+
+If you can't use the library or need to implement the edu-sharing integration i.e. in an other programming language, here are some general tips.
+
+## Adding the signing headers
+For each request you will make to our api, you will need to add the following headers:
+
+```
+X-Edu-App-Id: <your-app-id>,
+X-Edu-App-Signed: <signed-payload-including-the-timestamp>,
+X-Edu-App-Sig: <signature>,
+X-Edu-App-Ts: <unix-timestamp-in-ms>,
+```
+
+The signature must be generated using your private key (where the public key is known to the edu-sharing repository), in PHP, it will be done like
+```php
+$privateKeyId = openssl_get_privatekey($privateKey);
+openssl_sign($toSign, $signature, $privateKeyId);
+return base64_encode($signature);
+```
+
+in Java, it would be:
+```java
+Signature dsa = Signature.getInstance(ALGORITHM_SIGNATURE);
+dsa.initSign(privateKey);
+dsa.update(data.getBytes());
+byte[] signature = dsa.sign();
+return new Base64().encode(signature);
+```
+
+## Fetching ticket
+
+Fetching a ticket (which you can use to authenticate as the user later one) is done by calling 
+
+`GET /rest/authentication/v1/appauth/<username>`
+
+Please don't forget to attach your signature headers as described before.
+
+## Creating Usage
+
+Creating an usage is done by calling 
+
+
+`POST /rest/usage/v1/usages/repository/-home-`
+
+including the (JSON) payload
+
+```json
+{
+  "appId": "<your-app-id>",
+  "courseId": "<container-id>",
+  "resourceId": "<resource-id>",
+  "nodeId": "<node-id>",
+  "nodeVersion": "<node-version>"
+}
+```
+
+and the following header including the previously fetched user ticket
+
+`Authorization: EDU-TICKET <ticket>`
+
+To learn more about the individual data of this payload, please refer to the code docs of the `createUsage` method in this lirbrary.
+
+
+
+
+## Fetching element by usage
+
+Fetching the previously generated usage is done by calling
+
+`GET /rest/rendering/v1/details/-home-/<usage-node-id>`
+
+and adding the following HTTP headers:
+
+```
+X-Edu-Usage-Node-Id: <usage-node-id>
+X-Edu-Usage-Course-Id: <usage-container-id>
+X-Edu-Usage-Resource-Id: <usage-resource-id>
+X-Edu-User-Id: <user-id> # optional
+```
