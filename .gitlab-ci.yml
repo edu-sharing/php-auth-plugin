@@ -7,7 +7,8 @@ stages:
 before_script:
   - apt-get update -yqq
   - apt-get install -yqq
-  - docker-php-ext-install curl openssl curl-dev
+  - apt install curl
+  - docker-php-ext-install curl openssl
   - curl --location --output /usr/local/bin/composer https://getcomposer.org/download/latest-stable/composer.phar
   - chmod +x /usr/local/bin/composer
   - curl --location --output /usr/local/bin/codecept https://codeception.com/codecept.phar
