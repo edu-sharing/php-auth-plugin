@@ -21,4 +21,5 @@ build_stage:
 test_stage:
   stage: test
   script:
+    - ls -lah
     - codecept init unit
