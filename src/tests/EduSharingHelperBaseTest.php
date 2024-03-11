@@ -2,8 +2,8 @@
 
 namespace tests;
 
-use EduSharing\CurlResult;
-use EduSharing\EduSharingHelperBase;
+use EduSharingApiClient\CurlResult;
+use EduSharingApiClient\EduSharingHelperBase;
 use Exception;
 use JsonException;
 use PHPUnit\Framework\TestCase;
@@ -58,6 +58,7 @@ class EduSharingHelperBaseTest extends TestCase
      * Function testVerifyCompatibilityThrowsJsonExceptionOnInvalidJson
      *
      * @return void
+     * @throws Exception
      */
     public function testVerifyCompatibilityThrowsJsonExceptionOnInvalidJson(): void {
         $mock = $this->getMockBuilder(EduSharingHelperBase::class)

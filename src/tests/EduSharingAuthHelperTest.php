@@ -2,10 +2,10 @@
 
 namespace tests;
 
-use EduSharing\AppAuthException;
-use EduSharing\CurlResult;
-use EduSharing\EduSharingAuthHelper;
-use EduSharing\EduSharingHelperBase;
+use EduSharingApiClient\AppAuthException;
+use EduSharingApiClient\CurlResult;
+use EduSharingApiClient\EduSharingAuthHelper;
+use EduSharingApiClient\EduSharingHelperBase;
 use Exception;
 use JsonException;
 use PHPUnit\Framework\TestCase;
@@ -98,6 +98,7 @@ class EduSharingAuthHelperTest extends TestCase
      * Function testGetTicketForUserThrowsExceptionOnEmptyCurlResult
      *
      * @return void
+     * @throws AppAuthException
      */
     public function testGetTicketForUserThrowsExceptionOnEmptyCurlResult(): void {
         $url      = 'https://www.test.de';

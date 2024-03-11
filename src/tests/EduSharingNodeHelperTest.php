@@ -2,14 +2,14 @@
 
 namespace tests;
 
-use EduSharing\CurlResult;
-use EduSharing\EduSharingHelperBase;
-use EduSharing\EduSharingNodeHelper;
-use EduSharing\EduSharingNodeHelperConfig;
-use EduSharing\NodeDeletedException;
-use EduSharing\UrlHandling;
-use EduSharing\Usage;
-use EduSharing\UsageDeletedException;
+use EduSharingApiClient\CurlResult;
+use EduSharingApiClient\EduSharingHelperBase;
+use EduSharingApiClient\EduSharingNodeHelper;
+use EduSharingApiClient\EduSharingNodeHelperConfig;
+use EduSharingApiClient\NodeDeletedException;
+use EduSharingApiClient\UrlHandling;
+use EduSharingApiClient\Usage;
+use EduSharingApiClient\UsageDeletedException;
 use Exception;
 use JsonException;
 use PHPUnit\Framework\MockObject\MockObject;

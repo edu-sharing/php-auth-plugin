@@ -1,0 +1,23 @@
+image: php:8.2-cli
+
+stages:
+  - build
+  - test
+
+before_script:
+  - apt-get update -yqq
+  - apt-get install -yqq
+  - docker-php-ext-install json curl openssl
+  - curl --location --output /usr/local/bin/composer https://getcomposer.org/download/latest-stable/composer.phar
+  - chmod +x /usr/local/bin/composer
+  - curl --location --output /usr/local/bin/codecept https://codeception.com/codecept.phar
+  - chmod +x /usr/local/bin/codecept
+
+build_stage:
+  stage: build
+  script:
+    - composer install
+test_stage:
+  stage: test
+  script:
+    - codecept init unit
