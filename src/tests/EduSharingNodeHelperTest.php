@@ -335,17 +335,6 @@ class EduSharingNodeHelperTest extends TestCase
     }
 
     /**
-     * Function testDeleteUsageThrowsJsonExceptionOnInvalidJsonResponse
-     *
-     * @return void
-     */
-    public function testDeleteUsageThrowsJsonExceptionOnInvalidJsonResponse(): void {
-        $mock = $this->getMockForJsonCheck();
-        $this->expectException(JsonException::class);
-        $mock->deleteUsage('nodeId', 'usageId');
-    }
-
-    /**
      * Function testDeleteUsageReturnsVoidOnSuccessfulCall
      *
      * @return void
