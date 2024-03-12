@@ -1,9 +1,5 @@
 image: php:8.2
 
-stages:
-  - build
-  - test
-
 before_script:
   - apt-get update -yqq
   - apt-get install -yqq
@@ -12,11 +8,7 @@ before_script:
   - curl --location --output /usr/local/bin/composer https://getcomposer.org/download/latest-stable/composer.phar
   - chmod +x /usr/local/bin/composer
 
-build_stage:
-  stage: build
+test:
   script:
     - composer install
-test_stage:
-  stage: test
-  script:
     - ls -lah src
