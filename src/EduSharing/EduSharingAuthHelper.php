@@ -11,7 +11,6 @@ use Exception;
  */
 class EduSharingAuthHelper extends EduSharingHelperAbstract
 {
-
     /**
      * Function getTicketAuthenticationInfo
      *

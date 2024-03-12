@@ -124,6 +124,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
+     * @throws Exception
      */
     public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, ?array $renderingParams = null, ?string $userId = null): array {
         $url = $this->base->baseUrl . '/rest/rendering/v1/details/-home-/' . rawurlencode($usage->nodeId);
