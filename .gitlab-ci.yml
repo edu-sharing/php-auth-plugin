@@ -2,7 +2,6 @@ image: php:8.2
 
 before_script:
   - apt-get update -yqq
-  - apt-get install -yqq
   - apt install git zip -yqq
   - curl --location --output /usr/local/bin/composer https://getcomposer.org/download/latest-stable/composer.phar
   - chmod +x /usr/local/bin/composer
