@@ -11,4 +11,4 @@ before_script:
 test:
   script:
     - composer install
-    - ls -lah src
+    - ls -lah
