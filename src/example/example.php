@@ -16,17 +16,17 @@ $privatekey = @file_get_contents(__DIR__ . '/data/private.key');
 if(!$privatekey) {
     $key = EduSharingHelper::generateKeyPair();
     // store the $key data inside your application, e.g. your database or plugin config
-    file_put_contents(__DIR__ . '/data/' . APP_ID . '.properties.xml', EduSharingHelper::generateEduAppXMLData(APP_ID, $key['publickey']));
-    file_put_contents(__DIR__ . '/data/private.key', $key['privatekey']);
+    file_put_contents(__DIR__ . '/data/' . APP_ID . '.properties.xml', EduSharingHelper::generateEduAppXMLData(APP_ID, $key['publicKey']));
+    file_put_contents(__DIR__ . '/data/private.key', $key['privateKey']);
     die('Wrote ' . APP_ID . '.properties.xml file. Upload it to edu-sharing, then run this script again');
 } else {
-    $key['privatekey'] = $privatekey;
+    $key['privateKey'] = $privatekey;
 }
 if(count($argv) < 2) {
     die('This script should be called as follow: "example.php http://localhost:8080/edu-sharing [<node-id>]"');
 }
 // init the base class instance we use for all helpers
-$base = new EduSharingHelperBase($argv[1], $key['privatekey'], APP_ID);
+$base = new EduSharingHelperBase($argv[1], $key['privateKey'], APP_ID);
 $base->setLanguage('de');
 $base->verifyCompatibility();
 
