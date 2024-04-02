@@ -45,6 +45,20 @@
                 usage.action = 'GET_NODE';
                 const render = await fetchAPI(usage);
                 document.querySelector('#render').innerHTML = render.detailsSnippet;
+
+                // init scripts from snippet
+                Array.from(document.querySelector('#render').querySelectorAll('script')).forEach((script) => {
+                    const newScriptElement = document.createElement('script');
+                    Array.from(script.attributes).forEach((attr) => {
+                        newScriptElement.setAttribute(attr.name, attr.value);
+                    });
+                    if(script.innerText) {
+                        newScriptElement.innerText = script.innerText;
+                    }
+                    document.head.appendChild(newScriptElement);
+                    script.parentElement.removeChild(script);
+                });
+
                 document.querySelector('#preview').src = 'example-api.php?action=PREVIEW' +
                     '&nodeId=' + usage['nodeId'] +
                     "&containerId=" + usage['containerId'] +
