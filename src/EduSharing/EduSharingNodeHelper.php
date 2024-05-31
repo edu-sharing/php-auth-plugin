@@ -129,7 +129,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
     public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, ?array $renderingParams = null, ?string $userId = null): array {
         $url = $this->base->baseUrl . '/rest/rendering/v1/details/-home-/' . rawurlencode($usage->nodeId);
         $url .= '?displayMode=' . rawurlencode($displayMode);
-        if ($usage->nodeVersion !== null) {
+        if ($usage->nodeVersion) {
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
         $headers = $this->getUsageSignatureHeaders($usage, $userId);
@@ -198,7 +198,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
         }
         if (isset($data['node'])) {
             $params = '&usageId=' . urlencode($usage->usageId) . '&nodeId=' . urlencode($usage->nodeId) . '&resourceId=' . urlencode($usage->resourceId) . '&containerId=' . urlencode($usage->containerId);
-            if ($usage->nodeVersion !== null) {
+            if ($usage->nodeVersion) {
                 $params .= '&nodeVersion=' . urlencode($usage->nodeVersion);
             }
             $endpointBase           = $this->config->urlHandling->endpointURL . (str_contains($this->config->urlHandling->endpointURL, '?') ? '&' : '?');
