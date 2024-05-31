@@ -60,7 +60,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
-        $data      = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200 && empty($data['error'])) {
             return new Usage($data['parentNodeId'], $nodeVersion, $containerId, $resourceId, $data['nodeId']);
         }
@@ -217,6 +217,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      *
      * @param string $mode
      * @param Usage $usage
+     * @param array $additionalParams
+     * Additional query params that shall be passed to the repository url (as key=>value structure)
      * @param string|null $userId
      * The user id. Note: Due to the current behaviour, this userId will currently NOT obeyed for the tracking results
      * of this method, the statistics/tracking when going into the full view will always be anonymous
@@ -226,7 +228,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @throws UsageDeletedException
      * @throws Exception
      */
-    public function getRedirectUrl(string $mode, Usage $usage, ?string $userId = null): string {
+    public function getRedirectUrl(string $mode, Usage $usage, array $additionalParams = [], ?string $userId = null): string {
         $headers = $this->getUsageSignatureHeaders($usage);
         // DisplayMode::PRERENDER is used in order to differentiate for tracking and statistics
         $node    = $this->getNodeByUsage($usage, DisplayMode::PRERENDER, null, $userId);
@@ -237,6 +239,9 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
             }
             $header = explode(': ', $header);
             $params .= '&' . $header[0] . '=' . urlencode($header[1]);
+        }
+        foreach($additionalParams as $key => $value) {
+            $params .= '&' . $key . '=' . urlencode($value);
         }
         if ($mode === 'content') {
             $url    = $node['node']['content']['url'] ?? '';
