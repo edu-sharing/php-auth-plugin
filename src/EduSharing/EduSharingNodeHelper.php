@@ -217,6 +217,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @param string $mode
      * @param Usage $usage
      * @param string|null $userId
+     * The user id. Note: Due to the current behaviour, this userId will currently NOT obeyed for the tracking results
+     * of this method, the statistics/tracking when going into the full view will always be anonymous
      * @return string
      * @throws JsonException
      * @throws NodeDeletedException
