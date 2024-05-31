@@ -208,6 +208,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
                 'download' => $endpointBase . 'mode=download' . $params
             ];
             $data['detailsSnippet'] = str_replace('{{{LMS_INLINE_HELPER_SCRIPT}}}', $contentUrl, $data['detailsSnippet']);
+            $data['detailsSnippet'] = str_replace('{{{TICKET}}}', '', $data['detailsSnippet']);
         }
     }
 
