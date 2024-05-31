@@ -241,6 +241,11 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
             $params .= '&' . $header[0] . '=' . urlencode($header[1]);
         }
         foreach($additionalParams as $key => $value) {
+            foreach ($headers as $header) {
+                if($header[0] === $key) {
+                    continue(2);
+                }
+            }
             $params .= '&' . $key . '=' . urlencode($value);
         }
         if ($mode === 'content') {
