@@ -274,7 +274,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      */
     public function getPreview(Usage $usage): CurlResult {
         $url = $this->base->baseUrl . '/preview?nodeId=' . rawurlencode($usage->nodeId) . '&maxWidth=400&maxHeight=400&crop=true';
-        if ($usage->nodeVersion !== null) {
+        if ($usage->nodeVersion) {
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
         $headers = $this->getUsageSignatureHeaders($usage);
