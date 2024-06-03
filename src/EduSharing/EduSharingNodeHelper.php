@@ -61,6 +61,13 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
             CURLOPT_HTTPHEADER     => $headers
         ]);
         $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        if ((int)$curl->info['http_code'] === 403 || (!empty($data['error']) && $data['message'] === 'NO_CCPUBLISH_PERMISSION')) {
+            throw new MissingRightsException("User missing publish rights.");
+        }
+        if (empty($data['parentNodeId']) || empty($data['nodeId'])) {
+            error_log('Creating usage failed for node: ' . $nodeId . '. Returned content: ' . $curl->content);
+            throw new Exception('creating usage failed: ' . $nodeId);
+        }
         if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200 && empty($data['error'])) {
             return new Usage($data['parentNodeId'], $nodeVersion, $containerId, $resourceId, $data['nodeId']);
         }
