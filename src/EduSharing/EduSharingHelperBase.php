@@ -73,10 +73,17 @@ class EduSharingHelperBase
      *
      * @param string $toSign
      * @return string
+     * @throws Exception
      */
     public function sign(string $toSign): string {
         $privateKeyId = openssl_get_privatekey($this->privateKey);
-        openssl_sign($toSign, $signature, $privateKeyId);
+        $success      = false;
+        if ($privateKeyId !== false) {
+            $success = openssl_sign($toSign, $signature, $privateKeyId);
+        }
+        if (!$success || !isset($signature)) {
+            throw new Exception("Private key invalid or empty.");
+        }
         return base64_encode($signature);
     }
 
