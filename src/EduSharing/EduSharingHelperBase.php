@@ -3,6 +3,7 @@
 namespace EduSharingApiClient;
 
 use Exception;
+use JsonException;
 
 /**
  * Class EduSharingHelperBase
@@ -95,6 +96,19 @@ class EduSharingHelperBase
      */
     public function verifyCompatibility(): void {
         $minVersion = '8.0';
+        $about = $this->getAbout();
+        if (version_compare($about["version"]["repository"], $minVersion) < 0) {
+            throw new Exception("The Edu-Sharing version of the connected repository is too low");
+        }
+    }
+
+    /**
+     * Function getAbout
+     *
+     * @throws JsonException
+     * @throws Exception
+     */
+    public function getAbout(): array {
         $request    = $this->handleCurlRequest($this->baseUrl . '/rest/_about', [
             CURLOPT_HTTPHEADER     => [
                 'Accept: application/json',
@@ -104,12 +118,9 @@ class EduSharingHelperBase
             CURLOPT_RETURNTRANSFER => 1
         ]);
         if ((int)$request->info["http_code"] === 200) {
-            $result = json_decode($request->content, true, 512, JSON_THROW_ON_ERROR);
-            if (version_compare($result["version"]["repository"], $minVersion) < 0) {
-                throw new Exception("The edu-sharing version of the target repository is too low. Minimum required is " . $minVersion . "\n" . print_r($result['version'] ?? $result, true));
-            }
-        } else {
-            throw new Exception("The edu-sharing version could not be retrieved\n" . print_r($request->info, true));
+            return json_decode($request->content, true, 512, JSON_THROW_ON_ERROR);
         }
+        throw new Exception(
+            "The edu-sharing about info could not be retrieved\n" . print_r($request->info, true));
     }
 }

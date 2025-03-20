@@ -113,6 +113,42 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
     }
 
     /**
+     * Function getSecuredNode
+     *
+     * retrieves the secured node for rendering via rendering service 2
+     * @param string $ticket
+     * A ticket with the user session who is creating this usage
+     * @param string $nodeId
+     * The node id
+     * @param string $repoId
+     * The repository id
+     *
+     * @return SecuredNode
+     * @throws JsonException
+     */
+    function getSecuredNode(string $ticket, string $nodeId, string $repoId): SecuredNode {
+        $headers   = $this->getSignatureHeaders($ticket);
+        $headers[] = $this->getRESTAuthenticationHeader($ticket);
+        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/node/v1/nodes/' . $repoId . '/' . $nodeId . '/metadata/secured', [
+            CURLOPT_FAILONERROR    => false,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HTTPHEADER     => $headers
+        ]);
+        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200
+            && isset($data['node']) && isset($data['jwt']) && isset($data['signedNode']) && isset($data['signature'])) {
+            return new SecuredNode(
+                node: $data['node'],
+                securedNode: $data['signedNode'],
+                jwt: $data['jwt'],
+                signature: $data['signature']
+            );
+        }
+        throw new Exception('fetching secured node failed '
+            . ($curl->info['http_code'] ?? 'unknown') . ': ' . ($data['error'] ?? 'unknown') . ' ' . ($data['message'] ?? 'unknown'));
+    }
+
+    /**
      * Function getNodeByUsage
      *
      * Loads the edu-sharing node referred by a given usage
