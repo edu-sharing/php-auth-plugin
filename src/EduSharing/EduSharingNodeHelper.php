@@ -126,16 +126,16 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @return SecuredNode
      * @throws JsonException
      */
-    function getSecuredNode(string $ticket, string $nodeId, string $repoId): SecuredNode {
-        $headers   = $this->getSignatureHeaders($ticket);
-        $headers[] = $this->getRESTAuthenticationHeader($ticket);
-        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/node/v1/nodes/' . $repoId . '/' . $nodeId . '/metadata/secured', [
+    function getSecuredNode(Usage $usage, ?string $userId = null): SecuredNode {
+        $headers   = $this->getUsageSignatureHeaders($usage);
+        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $usage->nodeId . '/metadata/secured', [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
         $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
-        if ($curl->error === 0 && $curl->info['http_code'] ?? 0 === 200
+
+        if ($curl->error === 0 && ($curl->info['http_code'] ?? 0) === 200
             && isset($data['node']) && isset($data['jwt']) && isset($data['signedNode']) && isset($data['signature'])) {
             return new SecuredNode(
                 node: $data['node'],

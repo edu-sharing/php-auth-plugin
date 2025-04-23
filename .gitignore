@@ -3,3 +3,4 @@
 /src/example/sample-app.properties.xml
 .idea/
 /data/
+/src/example/node_modules

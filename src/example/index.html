@@ -13,13 +13,14 @@
             margin: 10px;
         }
     </style>
+    <script src="node_modules/ngx-edu-sharing-rendering-web-component/main.js" type="module"></script>
     <script>
         let ticket;
-        let baseUrl = null;
+        let baseUrls = null;
         let esWindow = null;
         function openEduSharing() {
             esWindow = window.open(
-                baseUrl + '/components/search?ticket=' + encodeURIComponent(ticket) +
+                baseUrls["repository"] + '/components/search?ticket=' + encodeURIComponent(ticket) +
                 '&reurl=IFRAME'
             );
         }
@@ -38,33 +39,30 @@
         async function renderUsage() {
             if(localStorage.getItem('usage')) {
                 const usage = JSON.parse(localStorage.getItem('usage'));
-                document.querySelector('#usage').style.display = null;
+                document.querySelector('#render').style.display = null;
                 document.querySelector('#api').style.display = null;
                 document.querySelector('#delete-usage').style.display = null;
                 document.querySelector('#usage').innerHTML = JSON.stringify(usage, null, 4);
-                usage.action = 'GET_NODE';
-                const render = await fetchAPI(usage);
-                document.querySelector('#render').innerHTML = render.detailsSnippet;
+                usage.action = 'GET_JWT';
+                const response = await fetchAPI(usage);
 
-                // init scripts from snippet
-                Array.from(document.querySelector('#render').querySelectorAll('script')).forEach((script) => {
-                    const newScriptElement = document.createElement('script');
-                    Array.from(script.attributes).forEach((attr) => {
-                        newScriptElement.setAttribute(attr.name, attr.value);
-                    });
-                    if(script.innerText) {
-                        newScriptElement.innerText = script.innerText;
-                    }
-                    document.head.appendChild(newScriptElement);
-                    script.parentElement.removeChild(script);
-                });
+
+                const renderComponent = document.createElement('edu-sharing-render');
+                renderComponent.setAttribute("encoded_node", response.securedNode);
+                renderComponent.setAttribute("signature", response.signature);
+                renderComponent.setAttribute("jwt", response.jwt);
+                renderComponent.setAttribute("render_url", baseUrls["rendering"]);
+                renderComponent.setAttribute("encoded_user", btoa(JSON.stringify('user')));
+                renderComponent.setAttribute("service_worker_url", 'service-worker.php');
+                document.querySelector('#render').appendChild(renderComponent);
+
 
                 document.querySelector('#preview').src = 'example-api.php?action=PREVIEW' +
                     '&nodeId=' + usage['nodeId'] +
                     "&containerId=" + usage['containerId'] +
                     "&resourceId=" + usage['resourceId'] +
                     "&usageId=" + usage['usageId'];
-                document.querySelector('#api').innerHTML = JSON.stringify(render.url, null, 4);
+                document.querySelector('#api').innerHTML = JSON.stringify(response, null, 4);
             }
 
         }
@@ -122,7 +120,7 @@
 
         }
         window.addEventListener('load', async () => {
-            baseUrl = await fetchAPI({action: 'BASE_URL'});
+            baseUrls = await fetchAPI({action: 'BASE_URL'});
             await renderUsage();
 
             await getTicket();

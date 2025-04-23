@@ -34,7 +34,20 @@ $result = null;
 try {
     $base->verifyCompatibility();
     if ($action === 'BASE_URL') {
-        $result = BASE_URL_EXTERNAL;
+        $result = [
+            "repository" => BASE_URL_EXTERNAL,
+            "rendering" => $base->getRenderingServiceUrl()
+        ];
+    } else if ($action === 'GET_JWT') {
+        $result = $nodeHelper->getSecuredNode(
+            new Usage(
+                $postData->nodeId,
+                $postData->nodeVersion,
+                $postData->containerId,
+                $postData->resourceId,
+                $postData->usageId
+            )
+        );
     } else if ($action === 'GET_NODE') {
         $result = $nodeHelper->getNodeByUsage(
             new Usage(
