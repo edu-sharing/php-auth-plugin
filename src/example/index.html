@@ -13,6 +13,7 @@
             margin: 10px;
         }
     </style>
+    <link rel="stylesheet" href="node_modules/ngx-edu-sharing-rendering-web-component/styles.css" />
     <script src="node_modules/ngx-edu-sharing-rendering-web-component/main.js" type="module"></script>
     <script>
         let ticket;
@@ -39,7 +40,7 @@
         async function renderUsage() {
             if(localStorage.getItem('usage')) {
                 const usage = JSON.parse(localStorage.getItem('usage'));
-                document.querySelector('#render').style.display = null;
+                document.querySelector('#render').innerHTML = null;
                 document.querySelector('#api').style.display = null;
                 document.querySelector('#delete-usage').style.display = null;
                 document.querySelector('#usage').innerHTML = JSON.stringify(usage, null, 4);
