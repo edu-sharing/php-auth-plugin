@@ -9,6 +9,6 @@
   "scripts": {
   },
   "dependencies": {
-    "ngx-edu-sharing-rendering-web-component": "0.0.9"
+    "ngx-edu-sharing-rendering-web-component": "0.0.15"
   }
 }

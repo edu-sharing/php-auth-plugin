@@ -55,6 +55,7 @@
                 renderComponent.setAttribute("render_url", baseUrls["rendering"]);
                 renderComponent.setAttribute("encoded_user", btoa(JSON.stringify('user')));
                 renderComponent.setAttribute("service_worker_url", 'service-worker.php');
+                renderComponent.style.maxWidth = '800px';
                 document.querySelector('#render').appendChild(renderComponent);
 
 
