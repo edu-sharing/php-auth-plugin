@@ -13,8 +13,6 @@
             margin: 10px;
         }
     </style>
-    <link rel="stylesheet" href="node_modules/ngx-edu-sharing-rendering-web-component/styles.css" />
-    <script src="node_modules/ngx-edu-sharing-rendering-web-component/main.js" type="module"></script>
     <script>
         let ticket;
         let baseUrls = null;
@@ -121,8 +119,23 @@
             document.querySelector('#edu-select').style.display = null;
 
         }
+        function loadWebComponent() {
+            window.__env = {
+                EDU_SHARING_API_URL: baseUrls['repository'] + '/rest'
+            };
+            const script = document.createElement('script');
+            script.src = baseUrls['repository'] + '/web-components/rendering-service/main.js';
+            script.type = 'module';
+            document.head.appendChild(script);
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = baseUrls['repository'] + '/web-components/rendering-service/styles.css';
+            link.type = 'text/css';
+            document.head.appendChild(link);
+        }
         window.addEventListener('load', async () => {
             baseUrls = await fetchAPI({action: 'BASE_URL'});
+            loadWebComponent();
             await renderUsage();
 
             await getTicket();
