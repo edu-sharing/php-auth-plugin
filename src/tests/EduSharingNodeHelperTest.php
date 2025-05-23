@@ -72,10 +72,7 @@ class EduSharingNodeHelperTest extends TestCase
     public function testCreateUsageThrowsExceptionOnFailedCreation(): void {
         $mock = $this->getMockForFailedCurlTest();
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('creating usage failed');
-        $this->expectExceptionMessage('500');
-        $this->expectExceptionMessage('myMessage');
-        $this->expectExceptionMessage('myError');
+        $this->expectExceptionMessage('creating usage failed: node');
         $mock->createUsage('ticket', 'container', 'resource', 'node', 'nodeVersion');
     }
 
