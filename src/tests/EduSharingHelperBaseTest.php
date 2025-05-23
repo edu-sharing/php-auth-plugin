@@ -50,7 +50,7 @@ class EduSharingHelperBaseTest extends TestCase
             ->method('handleCurlRequest')
             ->will($this->returnValue(new CurlResult('{"test": "test", "statusCode": "OK"}', 5, ['http_code' => '500'])));
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The edu-sharing version could not be retrieved');
+        $this->expectExceptionMessage('The edu-sharing about info could not be retrieved');
         $mock->verifyCompatibility();
     }
 
@@ -86,7 +86,7 @@ class EduSharingHelperBaseTest extends TestCase
             ->method('handleCurlRequest')
             ->will($this->returnValue(new CurlResult(json_encode(['version' => ['repository' => '7.0']]), 0, ['http_code' => 200])));
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('The edu-sharing version of the target repository is too low');
+        $this->expectExceptionMessage('The Edu-Sharing version of the connected repository is too low');
         $mock->verifyCompatibility();
     }
 
