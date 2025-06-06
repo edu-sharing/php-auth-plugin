@@ -46,7 +46,10 @@
                 const response = await fetchAPI(usage);
 
 
+
+                // create the web-component element
                 const renderComponent = document.createElement('edu-sharing-render');
+                // set the attributes so it knows what to fetch
                 renderComponent.setAttribute("encoded_node", response.securedNode);
                 renderComponent.setAttribute("signature", response.signature);
                 renderComponent.setAttribute("jwt", response.jwt);
