@@ -39,7 +39,7 @@ try {
             "rendering" => $base->getRenderingServiceUrl()
         ];
     } else if ($action === 'GET_JWT') {
-        $result = $nodeHelper->getSecuredNode(
+        $result = $nodeHelper->getSecuredNodeByUsage(
             new Usage(
                 $postData->nodeId,
                 $postData->nodeVersion,
@@ -102,13 +102,10 @@ try {
         $result = $ticket;
     }
     echo json_encode($result);
-}catch(UsageDeletedException $e) {
+}catch(UsageDeletedException|NodeDeletedException $e) {
     http_response_code(404);
     echo $e->getMessage();
-}catch(NodeDeletedException $e) {
-    http_response_code(404);
-    echo $e->getMessage();
-}catch(AppAuthException $e) {
+} catch(AppAuthException $e) {
     http_response_code(401);
     echo $e->getMessage();
 }catch(\Exception $e) {
