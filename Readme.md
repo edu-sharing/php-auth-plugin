@@ -1,11 +1,11 @@
 # Edu-sharing PHP Library
 
 ## Usage Scenarios
-This library is intended for 3rd party systems (e.g. LMS, CMS) to interconnect with edu-sharing in order to embed edu-sharing materials into their pages.
+This library is intended for 3rd party systems (e.g. LMS, CMS) to interconnect with edu-sharing to embed edu-sharing materials into their pages.
 
 ## Pre-Requisites
-Every 3rd party system will need to be registered in edu-sharing first.
-edu-sharing 6.0 or greater must be used in order to make use of this library.
+Every third-party system will need to be registered in edu-sharing first.
+edu-sharing 9.0 or greater must be used to make use of this library.
 
 To register systems, log in to your edu-sharing as an administrator, switch to Admin-Tools -> Remote-Systems
 
@@ -61,9 +61,9 @@ Simply call `getNodeByUsage` including the usage data you received previously.
 You'll get the full node object (see the REST specification) as well as a ready-to-embed HTML snipped (`detailsSnippet`).
 
 #### 2.1 Content + Download Linking, Preview
-Since the object you've received is may not publicly available, you need to generate specific urls in order to access it via the current usage.
+Since the object you've received is probably not publicly available, you need to generate specific urls to access it via the current usage.
 
-You'll need an seperat endpoint in your application which verifys access of the current user and then redirect him to edu-sharing.
+You'll need an dedicated endpoint in your application which verifies access of the current user and then redirects them to edu-sharing.
 
 When initializing the library, configure the path where this endpoint will be available in your application like
 
