@@ -20,7 +20,7 @@ To register systems, log in to your edu-sharing as an administrator, switch to A
 ## Composer Usage (Beta)
 If you already use composer, you can fetch this library as a composer dependency
 
-`composer require edu-sharing/auth-plugin 8.0.x-dev`.
+`composer require edu-sharing/auth-plugin 10.0.x-dev`.
 
 You can access all classes in the `EduSharing` namespace. 
 
@@ -137,7 +137,7 @@ if ('serviceWorker' in navigator) {
 }
 ```
 
-##### 2.1.4 Instantiation the web component
+##### 2.1.4 Instantiation of the web component
 
 You can now add the web component to the DOM using JavaScript and set its inputs. Before doing so you need to fetch the required data from the repository using this library:
 
