@@ -3,6 +3,14 @@
 ## Usage Scenarios
 This library is intended for 3rd party systems (e.g. LMS, CMS) to interconnect with edu-sharing to embed edu-sharing materials into their pages.
 
+## Examples
+This repository includes a minimal example for using the library. 
+For a more involved example please check out the Edu-Sharing Moodle Plugins:
+
+- [Activity Plugin](https://github.com/edu-sharing/moodle-mod_edusharing) wraps this library to facilitate communication with the repository (class EdusharingService)
+- [Tiny MCE Plugin](https://github.com/edu-sharing/moodle-tiny_edusharing) handles embedding Edu-Sharing objects in a wysiwyg editor.
+- [Filter Plugin](https://github.com/edu-sharing/moodle-filter_edusharing) handles displaying embedded ES-Objects.
+
 ## Pre-Requisites
 Every third-party system will need to be registered in edu-sharing first.
 edu-sharing 9.0 or greater must be used to make use of this library.
@@ -28,7 +36,7 @@ The generated `properties.xml` file can then be used to register the app in edu-
 
 ## Basic Workflow & Features
 
-There are 2 common use cases:
+There are two common use cases:
 
 ### 1. Logging in and selecting an object to embed
 For this workflow, you first need to call `getTicketForUser` including the `userid` to fetch a ticket for your authenticated user. Since your app is registered via the public key, we will trust your request and return you a ticket (similar to a user session).
@@ -60,7 +68,107 @@ Simply call `getNodeByUsage` including the usage data you received previously.
 
 You'll get the full node object (see the REST specification) as well as a ready-to-embed HTML snipped (`detailsSnippet`).
 
-#### 2.1 Content + Download Linking, Preview
+
+#### 2.1 Rendering / displaying with Edu-Sharing 10.0
+
+**UPDATE FOR EDU-SHARING 10.0**
+Edusharing 10.0 uses a new Rendering Service which no longer provides a raw html snippet for embedding. Instead, it makes use of a web component for displaying the content.
+
+##### 2.1.1 Configuring the Edu-Sharing REST base url
+
+The web component calls two public endpoints of the Edu-Sharing REST API for which it needs the base path. Please configure it thus:
+
+```
+window.__env = {
+    EDU_SHARING_API_URL: YOUR_REPO_HOST/edu-sharing + '/rest'
+};
+```
+
+##### 2.1.2 Adding the web component to your app
+
+You can either add the web component to your app by using npm ([Link](https://www.npmjs.com/package/ngx-edu-sharing-rendering-web-component)) or by using the assets provided by the repository. The latter option is recommended as it ensures smooth updates and is used in the following examples.
+In any case two assets need to be added: ```main.js``` and ```styles.css```:
+
+```
+const script = document.createElement('script');
+script.src = 'YOUR_REPO_HOST/edu-sharing/web-components/rendering-service/main.js';
+script.type = 'module';
+document.head.appendChild(script);
+
+const link = document.createElement('link');
+link.rel = 'stylesheet';
+link.href = 'YOUR_REPO_HOST/edu-sharing/web-components/rendering-service/styles.css';
+link.type = 'text/css';
+document.head.appendChild(link);
+```
+or
+```
+<!-- Module script -->
+<script type="module" src="YOUR_REPO_HOST/edu-sharing/web-components/rendering-service/main.js"></script>
+
+<!-- Stylesheet -->
+<link rel="stylesheet" type="text/css" href="YOUR_REPO_HOST/edu-sharing/web-components/rendering-service/styles.css">
+
+```
+By default the web component is bundled using ESM. If you need AMD (for example for apps using require.js) simply change ```rendering-service``` to ```rendering-service-amd``` in the links.
+
+##### 2.1.3 Enabling the service worker
+
+For session handling, the new rendering Service uses a cookie. If, for some reason, the cookie is rejected by the browser an authentication header is managed and set by a service worker as a backup strategy. You need to add this service worker to your app.
+As it has to be served by your app using specific headers, you have to create your own endpoint:
+
+```
+header('Content-Type: text/javascript');
+header('Service-Worker-Allowed: /');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+```
+
+For an example endpoint see: [Moodle Service Worker Endpoint](https://github.com/edu-sharing/moodle-filter_edusharing/blob/main/getServiceWorker.php)
+As with the web component itself you can either use the npm package and serve the "edu-service-worker.js" from the node modules folder or create a proxy for the service worker hosted by the repository (either ```YOUR_REPO_HOST/edu-sharing/web-components/rendering-service/edu-service-worker.js``` or ```YOUR_REPO_HOST/edu-sharing/web-components/rendering-service-amd/edu-service-worker.js```)
+
+With the endpoint/proxy in place you can now add the service worker like this
+
+```JS
+const serviceWorkerScript = `PATH/TO/YOUR/EDPOINT/getServiceWorker.php`;
+if ('serviceWorker' in navigator) {
+    await navigator.serviceWorker.register(serviceWorkerScript, {
+        scope: '/'
+    });
+}
+```
+
+##### 2.1.4 Instantiation the web component
+
+You can now add the web component to the DOM using JavaScript and set its inputs. Before doing so you need to fetch the required data from the repository using this library:
+
+```
+$result = $nodeHelper->getSecuredNodeByUsage($YOUR_USAGE);
+```
+Furthermore, you will need the Rendering Service base url which can be obtained thus:
+```
+$about = $nodehelper->base->getAbout();
+if (isset ($about['renderingService2']['url'])) {
+    return $about['renderingService2']['url'];
+}
+throw new Exception('Rendering Service 2 is not configured');
+```
+With this data you can now add the custom element to the DOM.
+```
+const renderComponent = document.createElement('edu-sharing-render'); // From the call to getSecuredNode
+renderComponent.encoded_node = result.securedNode; // From the call to getSecuredNode
+renderComponent.signature = result.signature; // From the call to getSecuredNode
+renderComponent.jwt = result.jwt; // From the call to getSecuredNode
+renderComponent.render_url = renderingBaseUrl; // from getAbout()
+renderComponent.encoded_user = btoa(JSON.stringify("user")); // Leave as is
+renderComponent.service_worker_url = ""; // Leave as is
+renderComponent.activate_service_worker = false; // Leave as is
+renderComponent.assets_url = repoUrl + '/web-components/rendering-service/assets'; // Path to the assets of the web component
+renderComponent.resource_url = resourceUrl; // See section 2.2
+wrapper.innerHTML = "";
+wrapper.appendChild(renderComponent);
+```
+
+#### 2.2 Content + Download Linking, Preview
 Since the object you've received is probably not publicly available, you need to generate specific urls to access it via the current usage.
 
 You'll need an dedicated endpoint in your application which verifies access of the current user and then redirects them to edu-sharing.
@@ -204,8 +312,6 @@ and the following header including the previously fetched user ticket
 `Authorization: EDU-TICKET <ticket>`
 
 To learn more about the individual data of this payload, please refer to the code docs of the `createUsage` method in this lirbrary.
-
-
 
 
 ## Fetching element by usage
