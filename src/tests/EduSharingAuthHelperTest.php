@@ -30,7 +30,7 @@ class EduSharingAuthHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"test": "test", "statusCode": "OK"}', 5, ['test' => 'hello'])));
+            ->willReturn(new CurlResult('{"test": "test", "statusCode": "OK"}', 5, ['test' => 'hello']));
         $authHelper = new EduSharingAuthHelper($baseMock);
         try {
             $result = $authHelper->getTicketAuthenticationInfo('test');
@@ -48,7 +48,7 @@ class EduSharingAuthHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('', 5, ['test' => 'hello'])));
+            ->willReturn(new CurlResult('', 5, ['test' => 'hello']));
         $authHelper = new EduSharingAuthHelper($baseMock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('No answer from repository. Possibly a timeout while trying to connect to ' . $url);
@@ -68,7 +68,7 @@ class EduSharingAuthHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{', 5, ['test' => 'hello'])));
+            ->willReturn(new CurlResult('{', 5, ['test' => 'hello']));
         $authHelper = new EduSharingAuthHelper($baseMock);
         $this->expectException(JsonException::class);
         $authHelper->getTicketAuthenticationInfo('test');
@@ -87,7 +87,7 @@ class EduSharingAuthHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"test": "test", "statusCode": "NOT_OK"}', 5, ['test' => 'hello'])));
+            ->willReturn(new CurlResult('{"test": "test", "statusCode": "NOT_OK"}', 5, ['test' => 'hello']));
         $authHelper = new EduSharingAuthHelper($baseMock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('The given ticket is not valid anymore');
@@ -108,10 +108,10 @@ class EduSharingAuthHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('', 5, ['http_code' => '500'])));
+            ->willReturn(new CurlResult('', 5, ['http_code' => '500']));
         $baseMock->expects($this->once())
             ->method('sign')
-            ->will($this->returnValue('test'));
+            ->willReturn('test');
         $authHelper = new EduSharingAuthHelper($baseMock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('edu-sharing ticket could not be retrieved: HTTP-Code ' . '500' . ': ' . 'No answer from repository. Possibly a timeout while trying to connect to "' . $url . '"');
@@ -131,10 +131,10 @@ class EduSharingAuthHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{', 5, ['http_code' => '500'])));
+            ->willReturn(new CurlResult('{', 5, ['http_code' => '500']));
         $baseMock->expects($this->once())
             ->method('sign')
-            ->will($this->returnValue('test'));
+            ->willReturn('test');
         $authHelper = new EduSharingAuthHelper($baseMock);
         $this->expectException(JsonException::class);
         $authHelper->getTicketForUser('test');
@@ -153,10 +153,10 @@ class EduSharingAuthHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"message": "testMessage"}', 5, ['http_code' => '500'])));
+            ->willreturn(new CurlResult('{"message": "testMessage"}', 5, ['http_code' => '500']));
         $baseMock->expects($this->once())
             ->method('sign')
-            ->will($this->returnValue('test'));
+            ->willReturn('test');
         $authHelper = new EduSharingAuthHelper($baseMock);
         $this->expectException(AppAuthException::class);
         $this->expectExceptionMessage('testMessage');
@@ -176,10 +176,10 @@ class EduSharingAuthHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"ticket": "testTicket", "userId": "testUserId"}', 0, ['http_code' => '200'])));
+            ->willReturn(new CurlResult('{"ticket": "testTicket", "userId": "testUserId"}', 0, ['http_code' => '200']));
         $baseMock->expects($this->once())
             ->method('sign')
-            ->will($this->returnValue('test'));
+            ->willReturn('test');
         $authHelper = new EduSharingAuthHelper($baseMock);
         try {
             $this->assertEquals('testTicket', $authHelper->getTicketForUser('testUserId'));
@@ -201,10 +201,10 @@ class EduSharingAuthHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"ticket": "testTicket", "userId": "testUserId@test"}', 0, ['http_code' => '200'])));
+            ->willReturn(new CurlResult('{"ticket": "testTicket", "userId": "testUserId@test"}', 0, ['http_code' => '200']));
         $baseMock->expects($this->once())
             ->method('sign')
-            ->will($this->returnValue('test'));
+            ->willReturn('test');
         $authHelper = new EduSharingAuthHelper($baseMock);
         try {
             $this->assertEquals('testTicket', $authHelper->getTicketForUser('testUserId'));

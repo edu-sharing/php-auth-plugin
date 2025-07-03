@@ -48,7 +48,7 @@ class EduSharingHelperBaseTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"test": "test", "statusCode": "OK"}', 5, ['http_code' => '500'])));
+            ->willReturn(new CurlResult('{"test": "test", "statusCode": "OK"}', 5, ['http_code' => '500']));
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('The edu-sharing about info could not be retrieved');
         $mock->verifyCompatibility();
@@ -67,7 +67,7 @@ class EduSharingHelperBaseTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{', 5, ['http_code' => 200])));
+            ->willReturn(new CurlResult('{', 5, ['http_code' => 200]));
         $this->expectException(JsonException::class);
         $mock->verifyCompatibility();
     }
@@ -84,7 +84,7 @@ class EduSharingHelperBaseTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult(json_encode(['version' => ['repository' => '7.0']]), 0, ['http_code' => 200])));
+            ->willReturn(new CurlResult(json_encode(['version' => ['repository' => '7.0']]), 0, ['http_code' => 200]));
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('The Edu-Sharing version of the connected repository is too low');
         $mock->verifyCompatibility();
@@ -102,7 +102,7 @@ class EduSharingHelperBaseTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult(json_encode(['version' => ['repository' => '8.0']]), 0, ['http_code' => 200])));
+            ->willReturn(new CurlResult(json_encode(['version' => ['repository' => '8.0']]), 0, ['http_code' => 200]));
         try {
             $mock->verifyCompatibility();
             $this->addToAssertionCount(1);

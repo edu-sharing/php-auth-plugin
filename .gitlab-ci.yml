@@ -1,4 +1,4 @@
-image: php:8.2
+image: php:8.4
 
 before_script:
   - apt-get update -yqq

@@ -46,7 +46,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"parentNodeId": "parent", "nodeId": "node"}', 0, ['test' => 'hello', 'http_code' => '200'])));
+            ->willReturn(new CurlResult('{"parentNodeId": "parent", "nodeId": "node"}', 0, ['test' => 'hello', 'http_code' => '200']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -55,7 +55,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $result = $mock->createUsage('ticket', 'container', 'resource', 'node', 'nodeVersion');
         $this->assertEquals('parent', $result->nodeId);
         $this->assertEquals('nodeVersion', $result->nodeVersion);
@@ -124,7 +124,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult(json_encode($usageData), 0, ['test' => 'hello', 'http_code' => '200'])));
+            ->willReturn(new CurlResult(json_encode($usageData), 0, ['test' => 'hello', 'http_code' => '200']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -133,7 +133,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $this->assertEquals(null, $mock->getUsageIdByParameters('ticket', 'node', 'container', 'resource'));
     }
 
@@ -160,7 +160,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult(json_encode($usageData), 0, ['test' => 'hello', 'http_code' => '200'])));
+            ->willReturn(new CurlResult(json_encode($usageData), 0, ['test' => 'hello', 'http_code' => '200']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -169,7 +169,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $this->assertEquals('success', $mock->getUsageIdByParameters('ticket', 'node', 'container', 'resource'));
     }
 
@@ -195,7 +195,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult(json_encode($usageData), 0, ['test' => 'hello', 'http_code' => '200'])));
+            ->willReturn(new CurlResult(json_encode($usageData), 0, ['test' => 'hello', 'http_code' => '200']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -204,7 +204,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $this->assertEquals(null, $mock->getUsageIdByParameters('ticket', 'node', 'container', 'resource'));
     }
 
@@ -232,7 +232,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"testData": "success"}', 0, ['test' => 'hello', 'http_code' => '200'])));
+            ->willReturn(new CurlResult('{"testData": "success"}', 0, ['test' => 'hello', 'http_code' => '200']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -241,7 +241,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $result = $mock->getNodeByUsage(new Usage('nodeId', 'nodeVersion', 'containerId', 'resourceId', 'usageId'));
         $this->assertArrayHasKey('testData', $result);
         $this->assertEquals('success', $result['testData']);
@@ -260,7 +260,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"testData": "success"}', 0, ['test' => 'hello', 'http_code' => '403'])));
+            ->willReturn(new CurlResult('{"testData": "success"}', 0, ['test' => 'hello', 'http_code' => '403']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -269,7 +269,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $this->expectException(UsageDeletedException::class);
         $this->expectExceptionMessage('the given usage is deleted and the requested node is not public');
         $mock->getNodeByUsage(new Usage('nodeId', 'nodeVersion', 'containerId', 'resourceId', 'usageId'));
@@ -288,7 +288,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"testData": "success", "error": "error", "message":"message"}', 0, ['test' => 'hello', 'http_code' => 404])));
+            ->willReturn(new CurlResult('{"testData": "success", "error": "error", "message":"message"}', 0, ['test' => 'hello', 'http_code' => 404]));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -297,7 +297,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $this->expectException(NodeDeletedException::class);
         $this->expectExceptionMessage('the given node is already deleted');
         $mock->getNodeByUsage(new Usage('nodeId', 'nodeVersion', 'containerId', 'resourceId', 'usageId'));
@@ -316,7 +316,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"testData": "success", "error": "error", "message":"message"}', 0, ['test' => 'hello', 'http_code' => 418])));
+            ->willReturn(new CurlResult('{"testData": "success", "error": "error", "message":"message"}', 0, ['test' => 'hello', 'http_code' => 418]));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -325,7 +325,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('fetching node by usage failed');
         $mock->getNodeByUsage(new Usage('nodeId', 'nodeVersion', 'containerId', 'resourceId', 'usageId'));
@@ -344,7 +344,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"testData": "deleteSuccess"}', 0, ['test' => 'hello', 'http_code' => '200'])));
+            ->willReturn(new CurlResult('{"testData": "deleteSuccess"}', 0, ['test' => 'hello', 'http_code' => '200']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -353,7 +353,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         try {
             $mock->deleteUsage('nodeId', 'usageId');
             $this->addToAssertionCount(1);
@@ -375,7 +375,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"testData": "deleteSuccess", "error": "error", "message":"message"}', 1, ['test' => 'hello', 'http_code' => '404'])));
+            ->willReturn(new CurlResult('{"testData": "deleteSuccess", "error": "error", "message":"message"}', 1, ['test' => 'hello', 'http_code' => '404']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -384,7 +384,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $this->expectException(UsageDeletedException::class);
         $this->expectExceptionMessage('the given usage is already deleted or does not exist');
         $mock->deleteUsage('nodeId', 'usageId');
@@ -403,7 +403,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"testData": "deleteSuccess", "error": "error", "message": "message"}', 1, ['test' => 'hello', 'http_code' => '418'])));
+            ->willReturn(new CurlResult('{"testData": "deleteSuccess", "error": "error", "message": "message"}', 1, ['test' => 'hello', 'http_code' => '418']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -412,7 +412,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('deleting usage failed');
         $mock->deleteUsage('nodeId', 'usageId');
@@ -431,7 +431,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{', 0, ['test' => 'hello', 'http_code' => '200'])));
+            ->willReturn(new CurlResult('{', 0, ['test' => 'hello', 'http_code' => '200']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -440,7 +440,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         return $mock;
     }
 
@@ -457,7 +457,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
-            ->will($this->returnValue(new CurlResult('{"error": "myError", "message": "myMessage"}', 2, ['test' => 'hello', 'http_code' => '500'])));
+            ->willReturn(new CurlResult('{"error": "myError", "message": "myMessage"}', 2, ['test' => 'hello', 'http_code' => '500']));
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -466,7 +466,7 @@ class EduSharingNodeHelperTest extends TestCase
             ->getMock();
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         return $mock;
     }
 }
