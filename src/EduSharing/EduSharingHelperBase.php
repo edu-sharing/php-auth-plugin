@@ -123,4 +123,19 @@ class EduSharingHelperBase
         throw new Exception(
             "The edu-sharing about info could not be retrieved\n" . print_r($request->info, true));
     }
+
+    /**
+     * get the base url of the rendering service 2
+     * if it is not available, null is returned
+     *
+     * @throws JsonException
+     * @throws Exception
+     */
+    public function getRenderingServiceUrl(): ?string {
+        $about = $this->getAbout();
+        if (isset ($about['renderingService2']['url'])) {
+            return $about['renderingService2']['url'];
+        }
+        return null;
+    }
 }

@@ -118,6 +118,11 @@ In theory: no. Since the element is accessible for everyone, the usage is not re
 
 However, we use the usage for tracking/statistics purposes. Also, the node may get private at some point in the future which would break any remote embeddings. Thus, you should always create a usage.  
 
+### Object Versions
+You can use a specific node version by using the version parameter when fetching the content. However, the version is only supported for nodes which DO NOT have the aspect `ccm:published` and `ccm:collection_io_reference`.
+For nodes with one of these aspects, you may not send a specific version, otherwise the fetching will fail.
+You can find out all aspects of the user-selected node in the `node.aspects` array.
+
 ## Advanced Usage
 
 ### Custom Curl Handler
