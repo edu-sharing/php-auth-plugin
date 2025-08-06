@@ -7,10 +7,15 @@
  */
 namespace EduSharingApiClient;
 
-require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/../../vendor/autoload.php';
 
 const APP_ID = 'sample-app';
 const USERNAME = 'tester';
+
+$dataDir = __DIR__ . '/data';
+if (!is_dir($dataDir)) {
+    mkdir($dataDir, 0755, true);  // recursive = true
+}
 
 $privatekey = @file_get_contents(__DIR__ . '/data/private.key');
 if(!$privatekey) {
