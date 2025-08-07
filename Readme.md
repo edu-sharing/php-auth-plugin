@@ -11,6 +11,17 @@ For a more involved example please check out the Edu-Sharing Moodle Plugins:
 - [Tiny MCE Plugin](https://github.com/edu-sharing/moodle-tiny_edusharing) handles embedding Edu-Sharing objects in a wysiwyg editor.
 - [Filter Plugin](https://github.com/edu-sharing/moodle-filter_edusharing) handles displaying embedded ES-Objects.
 
+### Run example
+
+Call 
+
+```bash
+docker compose pull
+```
+and open in your browser: http://localhost:8080/example
+
+In your storage, check the new folder `data`. There you'll find the `sample-app.properties.xml` file you must upload to your repository (see Pre-Requisites).
+
 ## Pre-Requisites
 Every third-party system will need to be registered in edu-sharing first.
 edu-sharing 9.0 or greater must be used to make use of this library.
