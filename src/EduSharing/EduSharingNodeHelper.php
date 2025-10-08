@@ -142,7 +142,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
                 node: $data['node'],
                 securedNode: $data['signedNode'],
                 jwt: $data['jwt'],
-                signature: $data['signature']
+                signature: $data['signature'],
+                previewUrl: ''
             );
         }
         throw new Exception('fetching secured node failed '
@@ -182,6 +183,50 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
     }
 
     /**
+     * Function getNodeByUsageRendering2
+     *
+     * returns node without detailsSnippet (which is not available when legacy rendering is deactivated)
+     *
+     * @param Usage $usage
+     * @return CurlResult
+     */
+    private function getNodeByUsageRendering2(Usage $usage): CurlResult {
+        $headers   = $this->getUsageSignatureHeaders($usage);
+        return $this->base->handleCurlRequest($this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $usage->nodeId . '/metadata', [
+            CURLOPT_FAILONERROR    => false,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HTTPHEADER     => $headers
+        ]);
+    }
+
+    /**
+     * Function getNodeByUsageLegacy
+     *
+     * calls rendering API and returns node including detailsSnippet
+     *
+     * @param Usage $usage
+     * @param string $displayMode
+     * @param array|null $renderingParams
+     * @param string|null $userId
+     * @return CurlResult
+     */
+    private function getNodeByUsageLegacy(Usage $usage, string $displayMode = DisplayMode::INLINE, ?array $renderingParams = null, ?string $userId = null): CurlResult {
+        $url = $this->base->baseUrl . '/rest/rendering/v1/details/-home-/' . rawurlencode($usage->nodeId);
+        $url .= '?displayMode=' . rawurlencode($displayMode);
+        if ($usage->nodeVersion) {
+            $url .= '&version=' . rawurlencode($usage->nodeVersion);
+        }
+        $headers = $this->getUsageSignatureHeaders($usage, $userId);
+        return $this->base->handleCurlRequest($url, [
+            CURLOPT_FAILONERROR    => false,
+            CURLOPT_POST           => 1,
+            CURLOPT_POSTFIELDS     => json_encode($renderingParams),
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HTTPHEADER     => $headers
+        ]);
+    }
+
+    /**
      * Function getNodeByUsage
      *
      * Loads the edu-sharing node referred by a given usage
@@ -193,6 +238,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @param array|null $renderingParams
      * @param string|null $userId
      * The userId can be included for tracking and statistics purposes
+     * @param bool $rendering2
      * @return array
      * Returns an object containing a "detailsSnippet" representation
      * as well as the full node as provided by the REST API
@@ -202,21 +248,13 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @throws UsageDeletedException
      * @throws Exception
      */
-    public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, ?array $renderingParams = null, ?string $userId = null): array {
-        $url = $this->base->baseUrl . '/rest/rendering/v1/details/-home-/' . rawurlencode($usage->nodeId);
-        $url .= '?displayMode=' . rawurlencode($displayMode);
-        if ($usage->nodeVersion) {
-            $url .= '&version=' . rawurlencode($usage->nodeVersion);
+    public function getNodeByUsage(Usage $usage, string $displayMode = DisplayMode::INLINE, ?array $renderingParams = null, ?string $userId = null, bool $rendering2 = false): array {
+        if ($rendering2) {
+            $curl = $this->getNodeByUsageRendering2($usage);
+        } else {
+            $curl = $this->getNodeByUsageLegacy($usage, $displayMode, $renderingParams, $userId);
         }
-        $headers = $this->getUsageSignatureHeaders($usage, $userId);
-        $curl    = $this->base->handleCurlRequest($url, [
-            CURLOPT_FAILONERROR    => false,
-            CURLOPT_POST           => 1,
-            CURLOPT_POSTFIELDS     => json_encode($renderingParams),
-            CURLOPT_RETURNTRANSFER => 1,
-            CURLOPT_HTTPHEADER     => $headers
-        ]);
-        $data    = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
         $this->handleURLMapping($data, $usage);
         if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 200) {
             return $data;
@@ -283,8 +321,10 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
                 'content'  => $contentUrl,
                 'download' => $endpointBase . 'mode=download' . $params
             ];
-            $data['detailsSnippet'] = str_replace('{{{LMS_INLINE_HELPER_SCRIPT}}}', $contentUrl, $data['detailsSnippet']);
-            $data['detailsSnippet'] = str_replace('{{{TICKET}}}', '', $data['detailsSnippet']);
+            if (isset($data['detailsSnippet'])) {
+                $data['detailsSnippet'] = str_replace('{{{LMS_INLINE_HELPER_SCRIPT}}}', $contentUrl, $data['detailsSnippet']);
+                $data['detailsSnippet'] = str_replace('{{{TICKET}}}', '', $data['detailsSnippet']);
+            }
         }
     }
 
@@ -298,16 +338,17 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @param string|null $userId
      * The user id. Note: Due to the current behaviour, this userId will currently NOT obeyed for the tracking results
      * of this method, the statistics/tracking when going into the full view will always be anonymous
+     * @param bool $rendering2
      * @return string
      * @throws JsonException
      * @throws NodeDeletedException
      * @throws UsageDeletedException
      * @throws Exception
      */
-    public function getRedirectUrl(string $mode, Usage $usage, array $additionalParams = [], ?string $userId = null): string {
+    public function getRedirectUrl(string $mode, Usage $usage, array $additionalParams = [], ?string $userId = null, bool $rendering2 = false): string {
         $headers = $this->getUsageSignatureHeaders($usage);
         // DisplayMode::PRERENDER is used in order to differentiate for tracking and statistics
-        $node    = $this->getNodeByUsage($usage, DisplayMode::PRERENDER, null, $userId);
+        $node = $this->getNodeByUsage($usage, DisplayMode::PRERENDER, null, $userId, $rendering2);
         $params  = '';
         foreach ($headers as $header) {
             if (!str_starts_with($header, 'X-')) {
