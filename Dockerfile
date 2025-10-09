@@ -9,7 +9,7 @@ COPY composer.lock composer.lock
 RUN composer install
 RUN composer dump-autoload -o
 
-FROM php:8.1-apache
+FROM php:8.3-apache
 
 COPY entrypoint.sh /usr/bin
 RUN chmod +x /usr/bin/entrypoint.sh
