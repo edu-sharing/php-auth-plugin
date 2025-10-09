@@ -397,11 +397,17 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
     /**
      * Function getPreview
      *
+     * gets the preview (inlucding potential secured headers) and returns it in $result->content as a binary object
+     *
      * @param Usage $usage
      * @return CurlResult
      */
-    public function getPreview(Usage $usage): CurlResult {
-        $url = $this->base->baseUrl . '/preview?nodeId=' . rawurlencode($usage->nodeId) . '&maxWidth=400&maxHeight=400&crop=true';
+    public function getPreview(Usage $usage, PreviewSize $size = PreviewSize::SIZE_400_PX): CurlResult {
+        $sizeParam = '';
+        if($size->value > 0) {
+            $sizeParam = "&maxWidth=$size->value&maxHeight=$size->value&crop=true";
+        }
+        $url = $this->base->baseUrl . '/preview?nodeId=' . rawurlencode($usage->nodeId) . $sizeParam;
         if ($usage->nodeVersion) {
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
