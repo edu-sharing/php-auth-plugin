@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edu Sharing Usage Example</title>
+    <style>
+        body > div {
+            padding: 20px 10px;
+        }
+        pre {
+            border: 1px solid #eee;
+            padding: 10px;
+            margin: 10px;
+        }
+    </style>
+    <script>
+        let ticket;
+        let baseUrls = null;
+        let esWindow = null;
+        function openEduSharing() {
+            esWindow = window.open(
+                baseUrls["repository"] + '/components/search?ticket=' + encodeURIComponent(ticket) +
+                '&reurl=IFRAME'
+            );
+        }
+        window.addEventListener('message', receiveMessage, false);
+        async function receiveMessage(event){
+            if(event.data.event === 'APPLY_NODE'){ // Event Name hier festlegen
+                esWindow.close();
+                console.log(event.data.data);
+                usage = await createUsage(event.data.data.nodeId);
+                // in a real application, the usage is stored in your backend system
+                localStorage.setItem('usage', JSON.stringify(usage));
+                await renderUsage();
+
+            }
+        }
+        async function renderUsage() {
+            if(localStorage.getItem('usage')) {
+                const usage = JSON.parse(localStorage.getItem('usage'));
+                document.querySelector('#render').innerHTML = null;
+                document.querySelector('#api').style.display = null;
+                document.querySelector('#delete-usage').style.display = null;
+                document.querySelector('#usage').innerHTML = JSON.stringify(usage, null, 4);
+                usage.action = 'GET_JWT';
+                const response = await fetchAPI(usage);
+
+
+
+                // create the web-component element
+                const renderComponent = document.createElement('edu-sharing-render');
+                // set the attributes so it knows what to fetch
+                renderComponent.setAttribute("encoded_node", response.securedNode);
+                renderComponent.setAttribute("signature", response.signature);
+                renderComponent.setAttribute("jwt", response.jwt);
+                renderComponent.setAttribute("render_url", baseUrls["rendering"]);
+                renderComponent.setAttribute("encoded_user", btoa(JSON.stringify('user')));
+                renderComponent.setAttribute("service_worker_url", 'service-worker.php');
+                renderComponent.style.maxWidth = '800px';
+                document.querySelector('#render').appendChild(renderComponent);
+
+
+                document.querySelector('#preview').src = 'example-api.php?action=PREVIEW' +
+                    '&nodeId=' + usage['nodeId'] +
+                    "&containerId=" + usage['containerId'] +
+                    "&resourceId=" + usage['resourceId'] +
+                    "&usageId=" + usage['usageId'];
+                document.querySelector('#api').innerHTML = JSON.stringify(response, null, 4);
+            }
+
+        }
+        async function createUsage(nodeId) {
+            return await fetchAPI({
+                action: 'CREATE_USAGE',
+                ticket,
+                nodeId,
+                containerId: 'my_sample_page_1',
+                resourceId: Math.random()
+            });
+        }
+        async function deleteUsage() {
+            const usage = JSON.parse(localStorage.getItem('usage'));
+            try {
+                await fetchAPI({
+                    action: 'DELETE_USAGE',
+                    nodeId: usage.nodeId,
+                    usageId: usage.usageId
+                });
+            } catch(e) {
+                if(!confirm('Delete local storage anyway?')) {
+                    return;
+                }
+            }
+            localStorage.removeItem('usage');
+            document.querySelector('#render').style.display = 'none';
+            document.querySelector('#usage').style.display = 'none';
+            document.querySelector('#delete-usage').style.display = 'none';
+        }
+        async function fetchAPI(data) {
+            return new Promise((resolve, reject) => {
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", "example-api.php", true);
+                xhr.onload = () => {
+                    if (xhr.readyState === 4) {
+                        if (xhr.status === 200) {
+                            resolve(JSON.parse(xhr.response));
+                        } else {
+                            alert(xhr.statusText + ": " + xhr.responseText);
+                            reject(xhr.statusText);
+                        }
+                    }
+                };
+                xhr.onerror = function (e) {
+                    alert(xhr.statusText + ": " + xhr.responseText);
+                };
+                xhr.send(JSON.stringify(data));
+            });
+        }
+        async function getTicket() {
+            ticket = await fetchAPI({action: 'TICKET'});
+            document.querySelector('#ticket').innerText = ticket;
+            document.querySelector('#edu-select').style.display = null;
+
+        }
+        function loadWebComponent() {
+            window.__env = {
+                EDU_SHARING_API_URL: baseUrls['repository'] + '/rest'
+            };
+            const script = document.createElement('script');
+            script.src = baseUrls['repository'] + '/web-components/rendering-service/main.js';
+            script.type = 'module';
+            document.head.appendChild(script);
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = baseUrls['repository'] + '/web-components/rendering-service/styles.css';
+            link.type = 'text/css';
+            document.head.appendChild(link);
+        }
+        window.addEventListener('load', async () => {
+            baseUrls = await fetchAPI({action: 'BASE_URL'});
+            loadWebComponent();
+            await renderUsage();
+
+            await getTicket();
+        });
+    </script>
+</head>
+<body>
+<div>
+    <button onclick="getTicket()">Re-Fetch ticket</button>
+    <span id="ticket">No ticket</span>
+</div>
+<div id="edu-select" style="display:none;">
+    <button onclick="openEduSharing()">Open edu-sharing & select node</button>
+</div>
+<pre id="usage" style="display: none"></pre>
+<div id="delete-usage" style="display: none">
+    <button onclick="deleteUsage()">Delete current Usage</button>
+</div>
+<div id="render"></div>
+<img id="preview">
+<pre id="api" style="display: none"></pre>
+
+</body>
+</html>
