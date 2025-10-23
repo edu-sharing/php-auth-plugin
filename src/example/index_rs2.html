@@ -17,6 +17,7 @@
         let ticket;
         let baseUrls = null;
         let esWindow = null;
+        //window.__EDUSHARING_PUBLIC_PATH__ = `${baseUrls["repository"]}/web-components/rendering-service-amd/`;
         function openEduSharing() {
             esWindow = window.open(
                 baseUrls["repository"] + '/components/search?ticket=' + encodeURIComponent(ticket) +
@@ -37,6 +38,14 @@
         }
         async function renderUsage() {
             if(localStorage.getItem('usage')) {
+                if ('serviceWorker' in navigator) {
+                    console.log('Service Worker is supported');
+                    await navigator.serviceWorker.register('service-worker.php', {
+                        scope: '/'
+                    });
+                    await navigator.serviceWorker.ready;
+                }
+
                 const usage = JSON.parse(localStorage.getItem('usage'));
                 document.querySelector('#render').innerHTML = null;
                 document.querySelector('#api').style.display = null;
@@ -44,27 +53,35 @@
                 document.querySelector('#usage').innerHTML = JSON.stringify(usage, null, 4);
                 usage.action = 'GET_JWT';
                 const response = await fetchAPI(usage);
-
-
-
-                // create the web-component element
-                const renderComponent = document.createElement('edu-sharing-render');
-                // set the attributes so it knows what to fetch
-                renderComponent.setAttribute("encoded_node", response.securedNode);
-                renderComponent.setAttribute("signature", response.signature);
-                renderComponent.setAttribute("jwt", response.jwt);
-                renderComponent.setAttribute("render_url", baseUrls["rendering"]);
-                renderComponent.setAttribute("encoded_user", btoa(JSON.stringify('user')));
-                renderComponent.setAttribute("service_worker_url", 'service-worker.php');
-                renderComponent.style.maxWidth = '800px';
-                document.querySelector('#render').appendChild(renderComponent);
-
-
-                document.querySelector('#preview').src = 'example-api.php?action=PREVIEW' +
+                const previewUrl = 'example-api.php?action=PREVIEW' +
                     '&nodeId=' + usage['nodeId'] +
                     "&containerId=" + usage['containerId'] +
                     "&resourceId=" + usage['resourceId'] +
                     "&usageId=" + usage['usageId'];
+                const resourceUrl = 'example-api.php?action=REDIRECT&mode=content' +
+                    '&nodeId=' + usage['nodeId'] +
+                    "&containerId=" + usage['containerId'] +
+                    "&resourceId=" + usage['resourceId'] +
+                    "&usageId=" + usage['usageId'];
+
+                // create the web-component element
+                const renderComponent = document.createElement('edu-sharing-render');
+                // set the attributes so it knows what to fetch
+                renderComponent.encoded_node = response.securedNode;
+                renderComponent.signature = response.signature;
+                renderComponent.jwt = response.jwt;
+                renderComponent.render_url = baseUrls["rendering"];
+                renderComponent.encoded_user = btoa(JSON.stringify('user'));
+                renderComponent.service_worker_url = '';
+                renderComponent.activate_service_worker = false;
+                renderComponent.assets_url = baseUrls["repository"] + '/web-components/rendering-service/assets';
+                renderComponent.preview_url = previewUrl;
+                renderComponent.resource_url = resourceUrl;
+                renderComponent.style.maxWidth = '800px';
+                document.querySelector('#render').appendChild(renderComponent);
+
+
+                document.querySelector('#preview').src = previewUrl;
                 document.querySelector('#api').innerHTML = JSON.stringify(response, null, 4);
             }
 

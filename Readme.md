@@ -1,11 +1,11 @@
 # Edu-sharing PHP Library
 
 ## Usage Scenarios
-This library is intended for 3rd party systems (e.g. LMS, CMS) to interconnect with edu-sharing to embed edu-sharing materials into their pages.
+This library is intended for third party systems (e.g., LMS, CMS) to interconnect with edu-sharing to embed edu-sharing materials into their pages.
 
 ## Examples
 This repository includes a minimal example for using the library. 
-For a more involved example please check out the Edu-Sharing Moodle Plugins:
+For a more involved example, please check out the Edu-Sharing Moodle Plugins:
 
 - [Activity Plugin](https://github.com/edu-sharing/moodle-mod_edusharing) wraps this library to facilitate communication with the repository (class EdusharingService)
 - [Tiny MCE Plugin](https://github.com/edu-sharing/moodle-tiny_edusharing) handles embedding Edu-Sharing objects in a wysiwyg editor.
@@ -26,7 +26,7 @@ In your storage, check the new folder `data`. There you'll find the `sample-app.
 Every third-party system will need to be registered in edu-sharing first.
 edu-sharing 9.0 or greater must be used to make use of this library.
 
-To register systems, log in to your edu-sharing as an administrator, switch to Admin-Tools -> Remote-Systems
+To register systems, log in to your edu-sharing as an administrator, switch to Admin-Tools → Remote-Systems
 
 ## Composer Usage (Beta)
 If you already use composer, you can fetch this library as a composer dependency
@@ -45,7 +45,7 @@ You can create such a registration file by calling
 The generated `properties.xml` file can then be used to register the app in edu-sharing. (see [Pre-Requisites](#pre-requisites))
 (This is not required when using docker, it will be executed automatically)
 
-## Basic Workflow & Features
+## Basic Workflows & Features
 
 There are two common use cases:
 
@@ -55,7 +55,7 @@ For this workflow, you first need to call `getTicketForUser` including the `user
 After you have a ticket, you will navigate the user to the edu-sharing UI so that they can select an element.
 `<base-url>/components/search?ticket=<ticket>&reurl=IFRAME`
 
-When the user picked an element, you will receive the particular element via JavaScript:
+When the user has picked an element, you will receive the particular element via JavaScript:
 ```js
 window.addEventListener('message', receiveMessage, false);
 function receiveMessage(event) {
@@ -83,7 +83,7 @@ You'll get the full node object (see the REST specification) as well as a ready-
 #### 2.1 Rendering / displaying with Edu-Sharing 10.0
 
 **UPDATE FOR EDU-SHARING 10.0**
-Edusharing 10.0 uses a new Rendering Service which no longer provides a raw html snippet for embedding. Instead, it makes use of a web component for displaying the content.
+Edusharing 10.0 uses a new Rendering Service which no longer provides a raw HTML snippet for embedding. Instead, it makes use of a web component for displaying the content.
 
 ##### 2.1.1 Configuring the Edu-Sharing REST base url
 
@@ -121,11 +121,11 @@ or
 <link rel="stylesheet" type="text/css" href="YOUR_REPO_HOST/edu-sharing/web-components/rendering-service/styles.css">
 
 ```
-By default the web component is bundled using ESM. If you need AMD (for example for apps using require.js) simply change ```rendering-service``` to ```rendering-service-amd``` in the links.
+By default, the web component is bundled using ESM. If you need AMD (for example for apps using require.js) simply change ```rendering-service``` to ```rendering-service-amd``` in the links.
 
 ##### 2.1.3 Enabling the service worker
 
-For session handling, the new rendering Service uses a cookie. If, for some reason, the cookie is rejected by the browser an authentication header is managed and set by a service worker as a backup strategy. You need to add this service worker to your app.
+For session handling, the new rendering Service uses a cookie. If, for some reason, the cookie is rejected by the browser, an authentication header is managed and set by a service worker as a backup strategy. You need to add this service worker to your app.
 As it has to be served by your app using specific headers, you have to create your own endpoint:
 
 ```
@@ -137,20 +137,21 @@ header('Cache-Control: no-cache, no-store, must-revalidate');
 For an example endpoint see: [Moodle Service Worker Endpoint](https://github.com/edu-sharing/moodle-filter_edusharing/blob/main/getServiceWorker.php)
 As with the web component itself you can either use the npm package and serve the "edu-service-worker.js" from the node modules folder or create a proxy for the service worker hosted by the repository (either ```YOUR_REPO_HOST/edu-sharing/web-components/rendering-service/edu-service-worker.js``` or ```YOUR_REPO_HOST/edu-sharing/web-components/rendering-service-amd/edu-service-worker.js```)
 
-With the endpoint/proxy in place you can now add the service worker like this
+With the endpoint/proxy in place, you can now add the service worker like this
 
 ```JS
-const serviceWorkerScript = `PATH/TO/YOUR/EDPOINT/getServiceWorker.php`;
-if ('serviceWorker' in navigator) {
+const serviceWorkerScript = `PATH/TO/YOUR/SERVICEWORKERENDPOINT/getServiceWorker.php`;
+if ('serviceWorker' in navigator && !navigator.serviceWorker.ready) {
     await navigator.serviceWorker.register(serviceWorkerScript, {
         scope: '/'
     });
+    await navigator.serviceWorker.ready;
 }
 ```
 
 ##### 2.1.4 Instantiation of the web component
 
-You can now add the web component to the DOM using JavaScript and set its inputs. Before doing so you need to fetch the required data from the repository using this library:
+You can now add the web component to the DOM using JavaScript and set its inputs. Before doing so, you need to fetch the required data from the repository using this library:
 
 ```
 $result = $nodeHelper->getSecuredNodeByUsage($YOUR_USAGE);
@@ -163,6 +164,16 @@ if (isset ($about['renderingService2']['url'])) {
 }
 throw new Exception('Rendering Service 2 is not configured');
 ```
+And you will need a user object which can be obtained from the current app user and is needed to "mirror" this user to Edu-Sharing.:
+```
+const user = {
+    authorityName: $USERNAME, // This is the username of the current user
+    firstName: $FIRSTNAME, // Their first name
+    surName: $LASTNAME, // Their lastname
+    userEMail: $EMAIL // Their email
+}
+```
+
 With this data you can now add the custom element to the DOM.
 ```
 const renderComponent = document.createElement('edu-sharing-render'); // From the call to getSecuredNode
@@ -170,7 +181,7 @@ renderComponent.encoded_node = result.securedNode; // From the call to getSecure
 renderComponent.signature = result.signature; // From the call to getSecuredNode
 renderComponent.jwt = result.jwt; // From the call to getSecuredNode
 renderComponent.render_url = renderingBaseUrl; // from getAbout()
-renderComponent.encoded_user = btoa(JSON.stringify("user")); // Leave as is
+renderComponent.encoded_user = btoa(JSON.stringify(user)); // The user object
 renderComponent.service_worker_url = ""; // Leave as is
 renderComponent.activate_service_worker = false; // Leave as is
 renderComponent.assets_url = repoUrl + '/web-components/rendering-service/assets'; // Path to the assets of the web component
@@ -182,7 +193,7 @@ wrapper.appendChild(renderComponent);
 #### 2.2 Content + Download Linking, Preview
 Since the object you've received is probably not publicly available, you need to generate specific urls to access it via the current usage.
 
-You'll need an dedicated endpoint in your application which verifies access of the current user and then redirects them to edu-sharing.
+You'll need a dedicated endpoint in your application which verifies access of the current user and then redirects them to edu-sharing.
 
 When initializing the library, configure the path where this endpoint will be available in your application like
 
@@ -195,7 +206,7 @@ $nodeHelper = new EduSharingNodeHelper($base,
 );
 ```
 
-This endpoint should then verify your users permissions and call the redirect method of the library:
+This endpoint should then verify your user's permissions and call the redirect method of the library:
 ```php
         $url = $nodeHelper->getRedirectUrl(
             $_GET['mode'],
@@ -222,32 +233,32 @@ A usage is both information about and access permission for a particular element
 
 A usage can be created by a registered app. The usage will later allow this app to fetch the given element at any given time without additional permissions.
 
-### Do I need a ticket / signed in user before fetching an element via the usage information?
+### Do I need a ticket / authenticated user before fetching an element via the usage information?
 No. The element only needs to have a usage. The usage will allow access for this element for your app.
-edu-sharing will "trust" your application to only fetch elements for usages that you made sure the current user should have access to (e.g. a particular page or course).
+edu-sharing will "trust" your application to only fetch elements for usages that you made sure the current user should have access to (e.g., a particular page or course).
 
-### Can I create a usage without a ticket / signed in user?
-No. In order to create a usage, we first need to make sure that the user who wants to generate it has appropriate permissions for the given element. Thus, we need a ticket to confirm the user state. Also, the user information will be stored on the usage.
+### Can I create a usage without a ticket / authenticated user?
+No. To create a usage, we first need to make sure that the user who wants to generate it has appropriate permissions for the given element. Thus, we need a ticket to confirm the user state. Also, the user information will be stored on the usage.
 
 ### How can I find out if an element already has usages or not?
-In edu-sharing, with appropriate permissions, right click and choose "Invite". In the section "Invited" you'll also see the list of usages and may also "revoke" usages for the particular element.
+In edu-sharing, with appropriate permissions, right-click and choose "Invite." In the section "Invited" you'll also see the list of usages and may also "revoke" usages for the particular element.
 
 ### Do I need usages for public elements?
-In theory: no. Since the element is accessible for everyone, the usage is not required from a permission standpoint.
+In theory: no. Since the element is accessible to everyone, the usage is not required from a permission standpoint.
 
 However, we use the usage for tracking/statistics purposes. Also, the node may get private at some point in the future which would break any remote embeddings. Thus, you should always create a usage.  
 
 ### Object Versions
 You can use a specific node version by using the version parameter when fetching the content. However, the version is only supported for nodes which DO NOT have the aspect `ccm:published` and `ccm:collection_io_reference`.
-For nodes with one of these aspects, you may not send a specific version, otherwise the fetching will fail.
+For nodes with one of these aspects, you may not send a specific version; otherwise the fetching will fail.
 You can find out all aspects of the user-selected node in the `node.aspects` array.
 
 ## Advanced Usage
 
 ### Custom Curl Handler
-In case the system you're working with already provides a curl implementation (e.g. for global configuration of proxies, redirects or other features), you might want to route all requests from this library through the existing implementation.
+In case the system you're working with already provides a curl implementation (e.g., for global configuration of proxies, redirects or other features), you might want to route all requests from this library through the existing implementation.
 
-You can attach a custom curl handler in this case. Please note that you must do this directly after instantiating the base library, otherwise some requests might already have been sent.
+You can attach a custom curl handler in this case. Please note that you must do this directly after instantiating the base library; otherwise some requests might already have been sent.
 
 ```php
 $base->registerCurlHandler(new class extends CurlHandler {
@@ -263,7 +274,7 @@ Take a look at the `curl.php` file for more details and an example.
 
 # Notes for Manual/Custom implementation
 
-If you can't use the library or need to implement the edu-sharing integration i.e. in an other programming language, here are some general tips.
+If you can't use the library or need to implement the edu-sharing integration, i.e., in another programming language, here are some general tips.
 
 ## Adding the signing headers
 For each request you will make to our api, you will need to add the following headers:
@@ -297,11 +308,11 @@ Fetching a ticket (which you can use to authenticate as the user later one) is d
 
 `GET /rest/authentication/v1/appauth/<username>`
 
-Please don't forget to attach your signature headers as described before.
+Please remember to attach your signature headers as described before.
 
 ## Creating Usage
 
-Creating an usage is done by calling 
+Creating a usage is done by calling 
 
 
 `POST /rest/usage/v1/usages/repository/-home-`
@@ -322,10 +333,10 @@ and the following header including the previously fetched user ticket
 
 `Authorization: EDU-TICKET <ticket>`
 
-To learn more about the individual data of this payload, please refer to the code docs of the `createUsage` method in this lirbrary.
+To learn more about the individual data of this payload, please refer to the code docs of the `createUsage` method in this library.
 
 
-## Fetching element by usage
+## Fetching an element by usage
 
 Fetching the previously generated usage is done by calling
 
