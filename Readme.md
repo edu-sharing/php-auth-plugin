@@ -28,6 +28,18 @@ edu-sharing 9.0 or greater must be used to make use of this library.
 
 To register systems, log in to your edu-sharing as an administrator, switch to Admin-Tools → Remote-Systems
 
+When using Edu-Sharing >10.0 with the new rendering service, you need to add your local testing host to the list of allowed hosts:
+
+1. Login to Edu-Sharing as admin
+2. Admin-Tools
+3. Advanced System Configuration
+4. homeApplication.properties.xml edit
+5. Scroll to "allow_origin" and add your local host (e.g., http://localhost:8080, more than one allowed as a comma-separated list)
+6. Apply
+7. Wait for the changes to take effect (a job runs every 5 minutes to sync allowed origins with the rendering service)
+
+This step is not required in production systems.
+
 ## Composer Usage (Beta)
 If you already use composer, you can fetch this library as a composer dependency
 
@@ -123,6 +135,13 @@ or
 ```
 By default, the web component is bundled using ESM. If you need AMD (for example for apps using require.js) simply change ```rendering-service``` to ```rendering-service-amd``` in the links.
 
+**NOTE**:
+When using the AMD bundle, you need to tell webpack where to look for assetsa dn chunks:
+
+```    
+window.__EDUSHARING_PUBLIC_PATH__ = `${repoUrl}/web-components/rendering-service-amd/`;
+```
+
 ##### 2.1.3 Enabling the service worker
 
 For session handling, the new rendering Service uses a cookie. If, for some reason, the cookie is rejected by the browser, an authentication header is managed and set by a service worker as a backup strategy. You need to add this service worker to your app.
@@ -148,6 +167,10 @@ if ('serviceWorker' in navigator && !navigator.serviceWorker.ready) {
     await navigator.serviceWorker.ready;
 }
 ```
+**NOTE:**
+When testing locally (using non-secure http), you need to allow service workers in your browser:
+- Chrome: chrome://flags → Insecure origins treated as secure → Add your origin (e.g., http://localhost:8080) → Enable 
+- Firefox: dev console → Settings → Check "Enable service workers over http (when toolbox is open)"
 
 ##### 2.1.4 Instantiation of the web component
 
@@ -208,15 +231,18 @@ $nodeHelper = new EduSharingNodeHelper($base,
 
 This endpoint should then verify your user's permissions and call the redirect method of the library:
 ```php
+        $about = $nodeHelper->base->getAbout();
+        $useRendering2 =  isset ($about['renderingService2']['url']);
         $url = $nodeHelper->getRedirectUrl(
-            $_GET['mode'],
-            new Usage(
+            mode: $_GET['mode'],
+            usage: new Usage(
                 $_GET['nodeId'],
                 $_GET['nodeVersion'] ?? null,
                 $_GET['containerId'],
                 $_GET['resourceId'],
                 $_GET['usageId'],
-            )
+            ),
+            rendering2: $useRendering2
         );
         header("Location: $url");
 ```

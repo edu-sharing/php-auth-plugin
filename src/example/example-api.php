@@ -60,15 +60,23 @@ try {
         );
     } else if ($action === 'REDIRECT') {
         // in a real application, you should check if the user is actually allowed to access this usage!
+        $useRendering2 = false;
+        try {
+            $about = $nodeHelper->base->getAbout();
+            $useRendering2 =  isset ($about['renderingService2']['url']);
+        } catch (\Exception $e) {
+            error_log("Exception: " . $e->getMessage());
+        }
         $url = $nodeHelper->getRedirectUrl(
-            $_GET['mode'],
-            new Usage(
+            mode: $_GET['mode'],
+            usage: new Usage(
                 $_GET['nodeId'],
                 $_GET['nodeVersion'] ?? null,
                 $_GET['containerId'],
                 $_GET['resourceId'],
                 $_GET['usageId'],
-            )
+            ),
+            rendering2: $useRendering2,
         );
         header("Location: $url");
     }  else if ($action === 'PREVIEW') {

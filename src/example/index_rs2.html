@@ -26,10 +26,10 @@
         }
         window.addEventListener('message', receiveMessage, false);
         async function receiveMessage(event){
-            if(event.data.event === 'APPLY_NODE'){ // Event Name hier festlegen
+            if (event.data.event === 'APPLY_NODE') { // Event Name hier festlegen
                 esWindow.close();
                 console.log(event.data.data);
-                usage = await createUsage(event.data.data.nodeId);
+                const usage = await createUsage(event.data.data.nodeId);
                 // in a real application, the usage is stored in your backend system
                 localStorage.setItem('usage', JSON.stringify(usage));
                 await renderUsage();
