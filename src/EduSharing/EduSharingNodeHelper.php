@@ -127,10 +127,14 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @throws JsonException
      * @throws Exception
      */
-    function getSecuredNode(string $ticket, string $nodeId, string $repoId): SecuredNode {
+    function getSecuredNode(string $ticket, string $nodeId, string $repoId, string $version): SecuredNode {
         $headers   = $this->getSignatureHeaders($ticket);
         $headers[] = $this->getRESTAuthenticationHeader($ticket);
-        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/node/v1/nodes/' . $repoId . '/' . $nodeId . '/metadata/secured?propertyFilter=-all-', [
+        $url = $this->base->baseUrl . '/rest/node/v1/nodes/' . $repoId . '/' . $nodeId . '/metadata/secured?propertyFilter=-all-';
+        if ($version !== '' && $version !== '0' && $version !== '-1') {
+            $url .= '&version=' . rawurlencode($version);
+        }
+        $curl = $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
