@@ -154,6 +154,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * Function getSecuredNode
      *
      * retrieves the secured node for rendering via rendering service 2
+     * If version is specified in usage, the secured node will be fetched for the specified version
+     * The latest version will be fetched if version is either null, an empty string, "0" or "-1"
      *
      * @param Usage $usage
      * @return SecuredNode
@@ -162,7 +164,11 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      */
     function getSecuredNodeByUsage(Usage $usage): SecuredNode {
         $headers   = $this->getUsageSignatureHeaders($usage);
-        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $usage->nodeId . '/metadata/secured', [
+        $url = $this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $usage->nodeId . '/metadata/secured';
+        if ($usage->nodeVersion !== null && $usage->nodeVersion !== '' && $usage->nodeVersion !== '0' && $usage->nodeVersion !== '-1') {
+            $url .= '?version=' . rawurlencode($usage->nodeVersion);
+        }
+        $curl = $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
@@ -186,13 +192,19 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * Function getNodeByUsageRendering2
      *
      * returns node without detailsSnippet (which is not available when legacy rendering is deactivated)
+     * If version is specified in usage, thesecured node will be fetched for the specified version
+     * The latest version will be fetched if version is either null, an empty string, "0" or "-1"
      *
      * @param Usage $usage
      * @return CurlResult
      */
     private function getNodeByUsageRendering2(Usage $usage): CurlResult {
         $headers   = $this->getUsageSignatureHeaders($usage);
-        return $this->base->handleCurlRequest($this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $usage->nodeId . '/metadata', [
+        $url = $this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $usage->nodeId . '/metadata';
+        if ($usage->nodeVersion !== null && $usage->nodeVersion !== '' && $usage->nodeVersion !== '0' && $usage->nodeVersion !== '-1') {
+            $url .= '?version=' . rawurlencode($usage->nodeVersion);
+        }
+        return $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
