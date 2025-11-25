@@ -16,7 +16,7 @@ For a more involved example, please check out the Edu-Sharing Moodle Plugins:
 Call 
 
 ```bash
-docker compose pull
+docker compose build && docker compose up
 ```
 and open in your browser: http://localhost:8080/example
 
