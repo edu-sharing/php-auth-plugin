@@ -9,7 +9,10 @@ namespace EduSharingApiClient;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-const APP_ID = 'sample-app';
+define('APP_ID', getenv('APP_ID') ?? 'sample-app');
+error_log('APP_ID: ' . APP_ID);
+error_log('BASE_URL_INTERNAL: ' . getenv('BASE_URL_INTERNAL'));
+error_log('BASE_URL_EXTERNAL: ' . getenv('BASE_URL_EXTERNAL'));
 const USERNAME = 'tester';
 
 $privatekey = @file_get_contents(__DIR__ . '/data/private.key');

@@ -2,7 +2,7 @@
 namespace EduSharingApiClient;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-const APP_ID = 'sample-app';
+define('APP_ID', getenv('APP_ID') ?? 'sample-app');
 define('BASE_URL_INTERNAL', getenv('BASE_URL_INTERNAL'));
 define('BASE_URL_EXTERNAL', getenv('BASE_URL_EXTERNAL'));
 const USERNAME = 'tester';

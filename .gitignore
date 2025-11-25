@@ -4,3 +4,4 @@
 .idea/
 /data/
 /src/example/node_modules
+.env
