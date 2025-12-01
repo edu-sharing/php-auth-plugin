@@ -19,7 +19,7 @@
         let esWindow = null;
         function openEduSharing() {
             esWindow = window.open(
-                baseUrl + '/components/search?ticket=' + encodeURIComponent(ticket) +
+                baseUrl.repository + '/components/search?ticket=' + encodeURIComponent(ticket) +
                 '&reurl=IFRAME'
             );
         }
