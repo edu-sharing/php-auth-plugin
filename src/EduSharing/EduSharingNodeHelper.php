@@ -409,15 +409,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
         return $headers;
     }
 
-    /**
-     * Function getPreview
-     *
-     * gets the preview (inlucding potential secured headers) and returns it in $result->content as a binary object
-     *
-     * @param Usage $usage
-     * @return CurlResult
-     */
-    public function getPreview(Usage $usage, PreviewSize $size = PreviewSize::SIZE_400_PX): CurlResult {
+    private function getPreviewBaseUrl(Usage $usage, PreviewSize $size = PreviewSize::SIZE_400_PX) {
         $sizeParam = '';
         if($size->value > 0) {
             $sizeParam = "&maxWidth=$size->value&maxHeight=$size->value&crop=true";
@@ -426,11 +418,48 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
         if ($usage->nodeVersion) {
             $url .= '&version=' . rawurlencode($usage->nodeVersion);
         }
+        return $url;
+    }
+
+    /**
+     * Function getPreview
+     *
+     * gets the preview (inlucding potential secured headers) and returns it in $result->content as a binary object
+     *
+     * @param Usage $usage
+     * @param PreviewSize $size
+     * @return CurlResult
+     */
+    public function getPreview(Usage $usage, PreviewSize $size = PreviewSize::SIZE_400_PX): CurlResult {
+        $url = $this->getPreviewBaseUrl($usage, $size);
         $headers = $this->getUsageSignatureHeaders($usage);
         return $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
+    }
+    /**
+     * Function getPreview
+     *
+     * Same as getPreview, but will return a ready-to-send url to the client including the signed preview url
+     * Use this method if you don't want to proxy the preview through your system
+     *
+     * @param Usage $usage
+     * @param PreviewSize $size
+     * @return String
+     */
+    public function getPreviewUrl(Usage $usage, PreviewSize $size = PreviewSize::SIZE_400_PX): String {
+        $url = $this->getPreviewBaseUrl($usage, $size);
+        $headers = $this->getUsageSignatureHeaders($usage);
+        $params = '';
+         foreach ($headers as $header) {
+            if (!str_starts_with($header, 'X-')) {
+                continue;
+            }
+            $header = explode(': ', $header);
+            $params .= '&' . $header[0] . '=' . urlencode($header[1]);
+        }
+        return $url . $params;
     }
 }
