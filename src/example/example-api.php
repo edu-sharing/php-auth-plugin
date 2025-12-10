@@ -39,6 +39,7 @@ try {
             "rendering" => $base->getRenderingServiceUrl()
         ];
     } else if ($action === 'GET_JWT') {
+        // in a real application, you should check if the user is actually allowed to access this usage!
         $result = $nodeHelper->getSecuredNodeByUsage(
             new Usage(
                 $postData->nodeId,
@@ -49,6 +50,7 @@ try {
             )
         );
     } else if ($action === 'GET_NODE') {
+        // in a real application, you should check if the user is actually allowed to access this usage!
         $result = $nodeHelper->getNodeByUsage(
             new Usage(
                 $postData->nodeId,
