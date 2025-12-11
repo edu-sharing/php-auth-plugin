@@ -136,7 +136,7 @@ or
 By default, the web component is bundled using ESM. If you need AMD (for example for apps using require.js) simply change ```rendering-service``` to ```rendering-service-amd``` in the links.
 
 **NOTE**:
-When using the AMD bundle, you need to tell webpack where to look for assetsa dn chunks:
+When using the AMD bundle, you need to tell webpack where to look for assets and chunks:
 
 ```    
 window.__EDUSHARING_PUBLIC_PATH__ = `${repoUrl}/web-components/rendering-service-amd/`;
@@ -167,6 +167,9 @@ if ('serviceWorker' in navigator && !navigator.serviceWorker.ready) {
     await navigator.serviceWorker.ready;
 }
 ```
+**Important:**
+If, for some reason, you use a proxy for communication with the Rendering Service 2 API, please make sure it also forwards the "Authentication-Info" header. It is necessary for the service worker to function.
+
 **NOTE:**
 When testing locally (using non-secure http), you need to allow service workers in your browser:
 - Chrome: chrome://flags → Insecure origins treated as secure → Add your origin (e.g., http://localhost:8080) → Enable 
