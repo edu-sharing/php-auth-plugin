@@ -17,9 +17,9 @@
         let ticket;
         let baseUrl = null;
         let esWindow = null;
-        function openEduSharing() {
+        function openEduSharing(component = 'search') {
             esWindow = window.open(
-                baseUrl.repository + '/components/search?ticket=' + encodeURIComponent(ticket) +
+                baseUrl.repository + '/components/' + component + '?ticket=' + encodeURIComponent(ticket) +
                 '&reurl=IFRAME'
             );
         }
@@ -135,7 +135,8 @@
     <span id="ticket">No ticket</span>
 </div>
 <div id="edu-select" style="display:none;">
-    <button onclick="openEduSharing()">Open edu-sharing & select node</button>
+    <button onclick="openEduSharing()">Open edu-sharing & select/search node</button>
+    <button onclick="openEduSharing('upload')">Open edu-sharing & upload node</button>
 </div>
 <pre id="usage" style="display: none"></pre>
 <div id="delete-usage" style="display: none">
