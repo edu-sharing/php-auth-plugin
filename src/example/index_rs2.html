@@ -71,7 +71,6 @@
                 renderComponent.signature = response.signature;
                 renderComponent.jwt = response.jwt;
                 renderComponent.render_url = baseUrls["rendering"];
-                renderComponent.encoded_user = btoa(JSON.stringify('user'));
                 renderComponent.service_worker_url = '';
                 renderComponent.activate_service_worker = false;
                 renderComponent.assets_url = baseUrls["repository"] + '/web-components/rendering-service/assets';

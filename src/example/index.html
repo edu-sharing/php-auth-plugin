@@ -59,7 +59,6 @@
                 renderComponent.setAttribute("signature", response.signature);
                 renderComponent.setAttribute("jwt", response.jwt);
                 renderComponent.setAttribute("render_url", baseUrls["rendering"]);
-                renderComponent.setAttribute("encoded_user", btoa(JSON.stringify('user')));
                 renderComponent.setAttribute("service_worker_url", '');
                 renderComponent.style.maxWidth = '800px';
                 document.querySelector('#render').appendChild(renderComponent);

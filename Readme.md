@@ -190,15 +190,6 @@ if (isset ($about['renderingService2']['url'])) {
 }
 throw new Exception('Rendering Service 2 is not configured');
 ```
-And you will need a user object which can be obtained from the current app user and is needed to "mirror" this user to Edu-Sharing.:
-```
-const user = {
-    authorityName: $USERNAME, // This is the username of the current user
-    firstName: $FIRSTNAME, // Their first name
-    surName: $LASTNAME, // Their lastname
-    userEMail: $EMAIL // Their email
-}
-```
 
 With this data you can now add the custom element to the DOM.
 ```
@@ -207,7 +198,6 @@ renderComponent.encoded_node = result.securedNode; // From the call to getSecure
 renderComponent.signature = result.signature; // From the call to getSecuredNode
 renderComponent.jwt = result.jwt; // From the call to getSecuredNode
 renderComponent.render_url = renderingBaseUrl; // from getAbout()
-renderComponent.encoded_user = btoa(JSON.stringify(user)); // The user object
 renderComponent.service_worker_url = ""; // Leave as is
 renderComponent.activate_service_worker = false; // Leave as is
 renderComponent.assets_url = repoUrl + '/web-components/rendering-service/assets'; // Path to the assets of the web component
