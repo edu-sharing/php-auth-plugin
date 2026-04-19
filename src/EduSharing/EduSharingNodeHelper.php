@@ -428,11 +428,12 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      *
      * @param Usage $usage
      * @param PreviewSize $size
+     * @param string|null $userid
      * @return CurlResult
      */
-    public function getPreview(Usage $usage, PreviewSize $size = PreviewSize::SIZE_400_PX): CurlResult {
+    public function getPreview(Usage $usage, PreviewSize $size = PreviewSize::SIZE_400_PX, ?string $userid = null): CurlResult {
         $url = $this->getPreviewBaseUrl($usage, $size);
-        $headers = $this->getUsageSignatureHeaders($usage);
+        $headers = $this->getUsageSignatureHeaders($usage, $userid);
         return $this->base->handleCurlRequest($url, [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1,
