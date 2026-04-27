@@ -18,7 +18,7 @@ class EduSharingHelperBase
     public string      $appId;
     public string      $language = 'de';
     public CurlHandler $curlHandler;
-    public const string DEFAULT_ALGORITHM = 'SHA1withRSA';
+    public string      $defaultAlgorithm = 'SHA1withRSA';
 
 
     /**
@@ -153,7 +153,7 @@ class EduSharingHelperBase
      */
     private function getOpenSslAlgorithm(?string $algorithm): int {
         if ($algorithm === null) {
-            $algorithm = self::DEFAULT_ALGORITHM;
+            $algorithm = $this->defaultAlgorithm;
         }
 
         $normalized = strtoupper(str_replace(['-', '_'], '', $algorithm));
