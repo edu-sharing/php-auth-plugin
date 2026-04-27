@@ -146,7 +146,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
                 securedNode: $data['signedNode'],
                 jwt: $data['jwt'],
                 signature: $data['signature'],
-                previewUrl: ''
+                previewUrl: '',
+                signingAlgorithm: $data['signingAlgorithm'] ?? null,
             );
         }
         throw new Exception('fetching secured node failed '
@@ -184,7 +185,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
                 node: $data['node'],
                 securedNode: $data['signedNode'],
                 jwt: $data['jwt'],
-                signature: $data['signature']
+                signature: $data['signature'],
+                signingAlgorithm: $data['signingAlgorithm'] ?? null,
             );
         }
         throw new Exception('fetching secured node failed '
