@@ -3,6 +3,7 @@
 namespace EduSharingApiClient;
 
 use Exception;
+use InvalidArgumentException;
 use JsonException;
 
 /**
@@ -17,6 +18,8 @@ class EduSharingHelperBase
     public string      $appId;
     public string      $language = 'de';
     public CurlHandler $curlHandler;
+    public const string DEFAULT_ALGORITHM = 'SHA1withRSA';
+
 
     /**
      * @param string $baseUrl
@@ -73,14 +76,16 @@ class EduSharingHelperBase
      * Function sign
      *
      * @param string $toSign
+     * @param string|null $algorithm
      * @return string
      * @throws Exception
      */
-    public function sign(string $toSign): string {
+    public function sign(string $toSign, ?string $algorithm = null): string {
+        $algorithm = $this->getOpenSslAlgorithm($algorithm);
         $privateKeyId = openssl_get_privatekey($this->privateKey);
         $success      = false;
         if ($privateKeyId !== false) {
-            $success = openssl_sign($toSign, $signature, $privateKeyId);
+            $success = openssl_sign($toSign, $signature, $privateKeyId, $algorithm);
         }
         if (!$success || !isset($signature)) {
             throw new Exception("Private key invalid or empty.");
@@ -137,5 +142,29 @@ class EduSharingHelperBase
             return $about['renderingService2']['url'];
         }
         return null;
+    }
+
+    /**
+     * Converts the algorithm string provided by the repository to a PHP constant.
+     * Null default is SHA1.
+     *
+     * @param string|null $algorithm
+     * @return int
+     */
+    private function getOpenSslAlgorithm(?string $algorithm): int {
+        if ($algorithm === null) {
+            $algorithm = self::DEFAULT_ALGORITHM;
+        }
+
+        $normalized = strtoupper(str_replace(['-', '_'], '', $algorithm));
+
+        return match ($normalized) {
+            'SHA1WITHRSA', 'SHA1RSA', 'SHA1' => OPENSSL_ALGO_SHA1,
+            'SHA224WITHRSA', 'SHA224RSA', 'SHA224' => OPENSSL_ALGO_SHA224,
+            'SHA256WITHRSA', 'SHA256RSA', 'SHA256' => OPENSSL_ALGO_SHA256,
+            'SHA384WITHRSA', 'SHA384RSA', 'SHA384' => OPENSSL_ALGO_SHA384,
+            'SHA512WITHRSA', 'SHA512RSA', 'SHA512' => OPENSSL_ALGO_SHA512,
+            default => throw new InvalidArgumentException("Unsupported signature algorithm: {$algorithm}"),
+        };
     }
 }

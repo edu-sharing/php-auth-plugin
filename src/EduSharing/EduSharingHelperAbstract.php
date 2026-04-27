@@ -2,6 +2,8 @@
 
 namespace EduSharingApiClient;
 
+use Exception;
+
 /**
  * Class EduSharingHelperAbstract
  *
@@ -38,12 +40,14 @@ abstract class EduSharingHelperAbstract
      * @param string $signString
      * @param string $accept
      * @param string $contentType
+     * @param string|null $algorithm
      * @return string[]
+     * @throws Exception
      */
-    protected function getSignatureHeaders(string $signString, string $accept = 'application/json', string $contentType = 'application/json'): array {
+    protected function getSignatureHeaders(string $signString, string $accept = 'application/json', string $contentType = 'application/json', ?string $algorithm = null): array {
         $ts        = time() * 1000;
         $toSign    = $this->base->appId . $signString . $ts;
-        $signature = $this->sign($toSign);
+        $signature = $this->sign(toSign: $toSign, algorithm: $algorithm);
         return [
             'Accept: ' . $accept,
             'Content-Type: ' . $contentType,
@@ -51,6 +55,7 @@ abstract class EduSharingHelperAbstract
             'X-Edu-App-Signed: ' . $toSign,
             'X-Edu-App-Sig: ' . $signature,
             'X-Edu-App-Ts: ' . $ts,
+            'X-Edu-App-SignedAlg: ' . ($algorithm ?? $this->base::DEFAULT_ALGORITHM)
         ];
     }
 
@@ -58,9 +63,11 @@ abstract class EduSharingHelperAbstract
      * Function sign
      *
      * @param string $toSign
+     * @param string|null $algorithm
      * @return string
+     * @throws Exception
      */
-    protected function sign(string $toSign): string {
-        return $this->base->sign($toSign);
+    protected function sign(string $toSign, ?string $algorithm): string {
+        return $this->base->sign(toSign: $toSign,algorithm: $algorithm);
     }
 }
