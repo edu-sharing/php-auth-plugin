@@ -13,13 +13,13 @@ use JsonException;
  */
 class EduSharingHelperBase
 {
-    public string      $baseUrl;
-    public string      $privateKey;
-    public string      $appId;
-    public string      $language = 'de';
-    public CurlHandler $curlHandler;
-    public string      $defaultAlgorithm = 'SHA1withRSA';
-
+    public string           $baseUrl;
+    public string           $privateKey;
+    public string           $appId;
+    public string           $language = 'de';
+    public CurlHandler      $curlHandler;
+    public SignatureHandler $signatureHandler;
+    public string           $defaultAlgorithm = 'SHA1withRSA';
 
     /**
      * @param string $baseUrl
@@ -34,11 +34,12 @@ class EduSharingHelperBase
         if (!preg_match('/^([a-z]|[A-Z]|[0-9]|[-_]|[.])+$/', $appId)) {
             throw new InvalidAppIdException('The given app id contains invalid characters or symbols');
         }
-        $baseUrl           = rtrim($baseUrl, '/');
-        $this->baseUrl     = $baseUrl;
-        $this->privateKey  = $privateKey;
-        $this->appId       = $appId;
-        $this->curlHandler = new DefaultCurlHandler();
+        $baseUrl                = rtrim($baseUrl, '/');
+        $this->baseUrl          = $baseUrl;
+        $this->privateKey       = $privateKey;
+        $this->appId            = $appId;
+        $this->curlHandler      = new DefaultCurlHandler();
+        $this->signatureHandler = new DefaultSignatureHandler();
     }
 
     /**
@@ -49,6 +50,16 @@ class EduSharingHelperBase
      */
     public function registerCurlHandler(CurlHandler $handler): void {
         $this->curlHandler = $handler;
+    }
+
+    /**
+     * Function registerSignatureHandler
+     *
+     * @param SignatureHandler $handler
+     * @return void
+     */
+    public function registerSignatureHandler(SignatureHandler $handler): void {
+        $this->signatureHandler = $handler;
     }
 
     /**
@@ -76,12 +87,11 @@ class EduSharingHelperBase
      * Function sign
      *
      * @param string $toSign
-     * @param string|null $algorithm
      * @return string
      * @throws Exception
      */
-    public function sign(string $toSign, ?string $algorithm = null): string {
-        $algorithm = $this->getOpenSslAlgorithm($algorithm);
+    public function sign(string $toSign): string {
+        $algorithm = $this->getOpenSslAlgorithm($this->signatureHandler->getAlgorithm());
         $privateKeyId = openssl_get_privatekey($this->privateKey);
         $success      = false;
         if ($privateKeyId !== false) {

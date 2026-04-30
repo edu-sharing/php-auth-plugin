@@ -125,6 +125,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @param string $version
      * @return SecuredNode
      * @throws JsonException
+     * @throws Exception
      */
     function getSecuredNode(string $ticket, string $nodeId, string $repoId, string $version): SecuredNode {
         $headers   = $this->getSignatureHeaders($ticket);
