@@ -175,7 +175,46 @@ When testing locally (using non-secure http), you need to allow service workers 
 - Chrome: chrome://flags → Insecure origins treated as secure → Add your origin (e.g., http://localhost:8080) → Enable 
 - Firefox: dev console → Settings → Check "Enable service workers over http (when toolbox is open)"
 
-##### 2.1.4 Instantiation of the web component
+##### 2.1.4 Signature algorithm handling
+
+The Edu-Sharing dev team currently migrates the repository service to current security standards. To ensure a secure encryption algorithm usage in your plugin, you will have to add a class which implements the `SignatureHandler` interface.
+Example:
+
+```php
+<?php
+
+use EduSharingApiClient\EduSharingNodeHelper;
+use EduSharingApiClient\SignatureHandler;
+
+class MySignatureHandler implements SignatureHandler
+{
+    private EduSharingNodeHelper $nodeHelper;
+
+    public function __construct(EduSharingNodeHelper $nodeHelper) {
+        $this->nodeHelper = $nodeHelper;
+    }
+
+    public function getAlgorithm(): string {
+        try {
+            $about = $this->nodeHelper->base->getAbout();
+            if (isset($about['defaultSignatureAlgorithm'])) {
+                return $about['defaultSignatureAlgorithm'];
+            }
+        } catch (Exception) {
+            // Do nothing. Just use default
+        }
+        return $this->nodeHelper->base->defaultAlgorithm;
+    }
+}
+```
+If possible, try to cache the response to reduce calls to the Edu-Sharing Repository's About API, for example by using your host system's session handling.
+
+Register your handler in the library like this:
+
+```php
+$nodeHelper->base->setSignatureHandler(new MySignatureHandler($nodeHelper));
+```
+##### 2.1.5 Instantiation of the web component
 
 You can now add the web component to the DOM using JavaScript and set its inputs. Before doing so, you need to fetch the required data from the repository using this library:
 
