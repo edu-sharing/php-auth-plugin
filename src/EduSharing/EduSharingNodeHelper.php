@@ -167,7 +167,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @return SecuredNode
      * @throws JsonException
      */
-    function getSecuredNodeByUsage(Usage $usage, ?int $userId = null): SecuredNode {
+    function getSecuredNodeByUsage(Usage $usage, ?string $userId = null): SecuredNode {
         $headers   = $this->getUsageSignatureHeaders($usage, $userId);
         $url = $this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $usage->nodeId . '/metadata/secured';
         if ($usage->nodeVersion !== null && $usage->nodeVersion !== '' && $usage->nodeVersion !== '0' && $usage->nodeVersion !== '-1') {
