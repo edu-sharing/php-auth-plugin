@@ -163,7 +163,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * The latest version will be fetched if version is either null, an empty string, "0" or "-1"
      *
      * @param Usage $usage
-     * @param int|null $userId
+     * @param string|null $userId
      * @return SecuredNode
      * @throws JsonException
      */
