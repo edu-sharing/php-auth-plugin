@@ -163,12 +163,12 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * The latest version will be fetched if version is either null, an empty string, "0" or "-1"
      *
      * @param Usage $usage
+     * @param int|null $userId
      * @return SecuredNode
      * @throws JsonException
-     * @throws Exception
      */
-    function getSecuredNodeByUsage(Usage $usage): SecuredNode {
-        $headers   = $this->getUsageSignatureHeaders($usage);
+    function getSecuredNodeByUsage(Usage $usage, ?int $userId = null): SecuredNode {
+        $headers   = $this->getUsageSignatureHeaders($usage, $userId);
         $url = $this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $usage->nodeId . '/metadata/secured';
         if ($usage->nodeVersion !== null && $usage->nodeVersion !== '' && $usage->nodeVersion !== '0' && $usage->nodeVersion !== '-1') {
             $url .= '?version=' . rawurlencode($usage->nodeVersion);
