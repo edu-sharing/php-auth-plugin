@@ -177,42 +177,38 @@ When testing locally (using non-secure http), you need to allow service workers 
 
 ##### 2.1.4 Signature algorithm handling
 
-The Edu-Sharing dev team currently migrates the repository service to current security standards. To ensure a secure encryption algorithm usage in your plugin, you will have to add a class which implements the `SignatureHandler` interface.
-Example:
+The Edu-Sharing dev team currently migrates the repository service to current security standards. To ensure a secure encryption algorithm is used in your plugin, the library determines the signature algorithm through a `SignatureHandler`.
+
+By default the library already uses the built-in `DefaultSignatureHandler`. It reads the algorithm advertised by the connected repository from its `_about` endpoint and falls back to the base default algorithm (`SHA1withRSA`) if the repository does not provide one — so for most integrations no further setup is required.
+
+**Recommended:** Because `getAlgorithm()` is called on every signed request, the `DefaultSignatureHandler` would otherwise hit the repository's About API each time. To avoid this, extend `DefaultSignatureHandler` and persist the resolved algorithm in a global storage or your host system's session, so the repository is only queried once per session:
 
 ```php
 <?php
 
-use EduSharingApiClient\EduSharingNodeHelper;
-use EduSharingApiClient\SignatureHandler;
+use EduSharingApiClient\DefaultSignatureHandler;
 
-class MySignatureHandler implements SignatureHandler
+class MySignatureHandler extends DefaultSignatureHandler
 {
-    private EduSharingNodeHelper $nodeHelper;
-
-    public function __construct(EduSharingNodeHelper $nodeHelper) {
-        $this->nodeHelper = $nodeHelper;
-    }
-
     public function getAlgorithm(): string {
-        try {
-            $about = $this->nodeHelper->base->getAbout();
-            if (isset($about['defaultSignatureAlgorithm'])) {
-                return $about['defaultSignatureAlgorithm'];
-            }
-        } catch (Exception) {
-            // Do nothing. Just use default
+        // Reuse a previously resolved algorithm from the session / global storage.
+        if (!empty($_SESSION['edusharing_signature_algorithm'])) {
+            return $_SESSION['edusharing_signature_algorithm'];
         }
-        return $this->nodeHelper->base->defaultAlgorithm;
+        // Resolve via the About endpoint (with built-in fallback) and persist it.
+        $algorithm = parent::getAlgorithm();
+        $_SESSION['edusharing_signature_algorithm'] = $algorithm;
+        return $algorithm;
     }
 }
 ```
-If possible, try to cache the response to reduce calls to the Edu-Sharing Repository's About API, for example by using your host system's session handling.
+
+Use whatever caching mechanism your host system provides (session, cache pool, static/global storage). Just make sure the cached value is invalidated when appropriate, e.g. when the repository configuration changes.
 
 Register your handler in the library like this:
 
 ```php
-$nodeHelper->base->setSignatureHandler(new MySignatureHandler($nodeHelper));
+$nodeHelper->base->registerSignatureHandler(new MySignatureHandler($nodeHelper->base));
 ```
 ##### 2.1.5 Instantiation of the web component
 

@@ -14,4 +14,4 @@ services:
     volumes:
       - ./data:/var/www/html/example/data
     ports:
-      - "8080:80"
+      - "8082:80"

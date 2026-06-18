@@ -39,7 +39,7 @@ class EduSharingHelperBase
         $this->privateKey       = $privateKey;
         $this->appId            = $appId;
         $this->curlHandler      = new DefaultCurlHandler();
-        $this->signatureHandler = new DefaultSignatureHandler();
+        $this->signatureHandler = new DefaultSignatureHandler($this);
     }
 
     /**
