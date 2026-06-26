@@ -106,7 +106,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
                     return isset($usage['nodeId']) ? (string)$usage['nodeId'] : null;
                 }
             }
-            return null;
+            throw new Exception('Usage for Node ' . $nodeId . ' not found in usage list: ' . json_encode($data));
         }
         throw new Exception('fetching usage list for course failed '
             . ($curl->info['http_code'] ?? 'unknown') . ': ' . ($data['error'] ?? 'unknown') . ' ' . ($data['message'] ?? 'unknown'));
