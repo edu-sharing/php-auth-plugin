@@ -44,7 +44,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @throws JsonException
      * @throws Exception
      */
-    public function createUsage(string $ticket, string $containerId, string $resourceId, string $nodeId, ?string $nodeVersion = null): Usage {
+    public function createUsage(string $ticket, string $containerId, string $resourceId, string $nodeId, ?string $nodeVersion = null, ?string $courseTitle = null): Usage {
         $headers   = $this->getSignatureHeaders($ticket);
         $headers[] = $this->getRESTAuthenticationHeader($ticket);
         $curl      = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/repository/-home-', [
@@ -56,6 +56,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
                 'resourceId'  => $resourceId,
                 'nodeId'      => $nodeId,
                 'nodeVersion' => $nodeVersion,
+                'courseTitle' => $courseTitle,
             ], 512, JSON_THROW_ON_ERROR),
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
