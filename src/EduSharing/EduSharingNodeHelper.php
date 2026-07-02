@@ -56,7 +56,7 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
                 'resourceId'  => $resourceId,
                 'nodeId'      => $nodeId,
                 'nodeVersion' => $nodeVersion,
-                'courseTitle' => $courseTitle,
+                'courseTitle' => empty($courseTitle) ? null : $courseTitle,
             ], 512, JSON_THROW_ON_ERROR),
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
