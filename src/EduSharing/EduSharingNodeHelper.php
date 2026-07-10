@@ -47,17 +47,20 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
     public function createUsage(string $ticket, string $containerId, string $resourceId, string $nodeId, ?string $nodeVersion = null, ?string $courseTitle = null): Usage {
         $headers   = $this->getSignatureHeaders($ticket);
         $headers[] = $this->getRESTAuthenticationHeader($ticket);
-        $curl      = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/repository/-home-', [
+        $postFieldsArray = [
+            'appId'       => $this->base->appId,
+            'courseId'    => $containerId,
+            'resourceId'  => $resourceId,
+            'nodeId'      => $nodeId,
+            'nodeVersion' => $nodeVersion,
+        ];
+        if (version_compare($this->base->getRepoVersion(), "10.0") >= 0) {
+            $postFieldsArray['courseTitle'] = empty($courseTitle) ? null : $courseTitle;
+        }
+        $curl = $this->base->handleCurlRequest($this->base->baseUrl . '/rest/usage/v1/usages/repository/-home-', [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_POST           => 1,
-            CURLOPT_POSTFIELDS     => json_encode([
-                'appId'       => $this->base->appId,
-                'courseId'    => $containerId,
-                'resourceId'  => $resourceId,
-                'nodeId'      => $nodeId,
-                'nodeVersion' => $nodeVersion,
-                'courseTitle' => empty($courseTitle) ? null : $courseTitle,
-            ], 512, JSON_THROW_ON_ERROR),
+            CURLOPT_POSTFIELDS     => json_encode($postFieldsArray, 512, JSON_THROW_ON_ERROR),
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);

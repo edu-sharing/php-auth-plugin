@@ -5,8 +5,8 @@ namespace tests;
 use EduSharingApiClient\AppAuthException;
 use EduSharingApiClient\CurlResult;
 use EduSharingApiClient\EduSharingAuthHelper;
+use EduSharingApiClient\AboutApiCacheHandler;
 use EduSharingApiClient\EduSharingHelperBase;
-use EduSharingApiClient\SignatureHandler;
 use Exception;
 use JsonException;
 use PHPUnit\Framework\TestCase;
@@ -19,13 +19,16 @@ use PHPUnit\Framework\TestCase;
 class EduSharingAuthHelperTest extends TestCase
 {
     /**
-     * Returns a signature handler that resolves the algorithm without any network
+     * Returns an about api cache handler that resolves the algorithm without any network
      * call, so signing-related tests stay isolated from the repository's _about endpoint.
      */
-    private function fixedSignatureHandler(): SignatureHandler {
-        return new class implements SignatureHandler {
-            public function getAlgorithm(): string {
-                return 'SHA1withRSA';
+    private function fixedAboutApiCacheHandler(): AboutApiCacheHandler {
+        return new class implements AboutApiCacheHandler {
+            public function getAboutApiCache(): array {
+                return [
+                    'defaultSignatureAlgorithm' => 'SHA1withRSA',
+                    'version'                   => ['repository' => '10.0'],
+                ];
             }
         };
     }
@@ -125,7 +128,7 @@ class EduSharingAuthHelperTest extends TestCase
         $baseMock->expects($this->once())
             ->method('sign')
             ->willReturn('test');
-        $baseMock->registerSignatureHandler($this->fixedSignatureHandler());
+        $baseMock->registerAboutApiCacheHandler($this->fixedAboutApiCacheHandler());
         $authHelper = new EduSharingAuthHelper($baseMock);
         $this->expectException(Exception::class);
         $this->expectExceptionMessage('edu-sharing ticket could not be retrieved: HTTP-Code ' . '500' . ': ' . 'No answer from repository. Possibly a timeout while trying to connect to "' . $url . '"');
@@ -149,7 +152,7 @@ class EduSharingAuthHelperTest extends TestCase
         $baseMock->expects($this->once())
             ->method('sign')
             ->willReturn('test');
-        $baseMock->registerSignatureHandler($this->fixedSignatureHandler());
+        $baseMock->registerAboutApiCacheHandler($this->fixedAboutApiCacheHandler());
         $authHelper = new EduSharingAuthHelper($baseMock);
         $this->expectException(JsonException::class);
         $authHelper->getTicketForUser('test');
@@ -172,7 +175,7 @@ class EduSharingAuthHelperTest extends TestCase
         $baseMock->expects($this->once())
             ->method('sign')
             ->willReturn('test');
-        $baseMock->registerSignatureHandler($this->fixedSignatureHandler());
+        $baseMock->registerAboutApiCacheHandler($this->fixedAboutApiCacheHandler());
         $authHelper = new EduSharingAuthHelper($baseMock);
         $this->expectException(AppAuthException::class);
         $this->expectExceptionMessage('testMessage');
@@ -196,7 +199,7 @@ class EduSharingAuthHelperTest extends TestCase
         $baseMock->expects($this->once())
             ->method('sign')
             ->willReturn('test');
-        $baseMock->registerSignatureHandler($this->fixedSignatureHandler());
+        $baseMock->registerAboutApiCacheHandler($this->fixedAboutApiCacheHandler());
         $authHelper = new EduSharingAuthHelper($baseMock);
         try {
             $this->assertEquals('testTicket', $authHelper->getTicketForUser('testUserId'));
@@ -222,7 +225,7 @@ class EduSharingAuthHelperTest extends TestCase
         $baseMock->expects($this->once())
             ->method('sign')
             ->willReturn('test');
-        $baseMock->registerSignatureHandler($this->fixedSignatureHandler());
+        $baseMock->registerAboutApiCacheHandler($this->fixedAboutApiCacheHandler());
         $authHelper = new EduSharingAuthHelper($baseMock);
         try {
             $this->assertEquals('testTicket', $authHelper->getTicketForUser('testUserId'));

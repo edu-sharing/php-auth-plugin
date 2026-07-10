@@ -42,11 +42,13 @@ class EduSharingNodeHelperTest extends TestCase
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs([$url, 'pkey123', 'myappid'])
-            ->onlyMethods(['handleCurlRequest'])
+            ->onlyMethods(['handleCurlRequest', 'getRepoVersion'])
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
             ->willReturn(new CurlResult('{"parentNodeId": "parent", "nodeId": "node"}', 0, ['test' => 'hello', 'http_code' => '200']));
+        $baseMock->method('getRepoVersion')
+            ->willReturn('10.0');
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -103,11 +105,11 @@ class EduSharingNodeHelperTest extends TestCase
     }
 
     /**
-     * Function testGetUsageIdByParameterReturnsNullIfNoMatchingUsageIsFound
+     * Function testGetUsageIdByParameterThrowsExceptionIfNoMatchingUsageIsFound
      *
      * @return void
      */
-    public function testGetUsageIdByParameterReturnsNullIfNoMatchingUsageIsFound(): void {
+    public function testGetUsageIdByParameterThrowsExceptionIfNoMatchingUsageIsFound(): void {
         $url       = 'https://www.test.de';
         $usageData = [
             'usages' => [
@@ -134,7 +136,9 @@ class EduSharingNodeHelperTest extends TestCase
         $mock->expects($this->once())
             ->method('getSignatureHeaders')
             ->willReturn([]);
-        $this->assertEquals(null, $mock->getUsageIdByParameters('ticket', 'node', 'container', 'resource'));
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Usage for Node node not found in usage list');
+        $mock->getUsageIdByParameters('ticket', 'node', 'container', 'resource');
     }
 
     /**
@@ -427,11 +431,13 @@ class EduSharingNodeHelperTest extends TestCase
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs([$url, 'pkey123', 'myappid'])
-            ->onlyMethods(['handleCurlRequest'])
+            ->onlyMethods(['handleCurlRequest', 'getRepoVersion'])
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
             ->willReturn(new CurlResult('{', 0, ['test' => 'hello', 'http_code' => '200']));
+        $baseMock->method('getRepoVersion')
+            ->willReturn('10.0');
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
@@ -453,11 +459,13 @@ class EduSharingNodeHelperTest extends TestCase
         $url      = 'https://www.test.de';
         $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
             ->setConstructorArgs([$url, 'pkey123', 'myappid'])
-            ->onlyMethods(['handleCurlRequest'])
+            ->onlyMethods(['handleCurlRequest', 'getRepoVersion'])
             ->getMock();
         $baseMock->expects($this->once())
             ->method('handleCurlRequest')
             ->willReturn(new CurlResult('{"error": "myError", "message": "myMessage"}', 2, ['test' => 'hello', 'http_code' => '500']));
+        $baseMock->method('getRepoVersion')
+            ->willReturn('10.0');
         $urlHandling  = new UrlHandling(true, 'https://endpoint.net');
         $helperConfig = new EduSharingNodeHelperConfig($urlHandling);
         $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)

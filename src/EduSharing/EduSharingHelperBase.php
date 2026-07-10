@@ -13,13 +13,13 @@ use JsonException;
  */
 class EduSharingHelperBase
 {
-    public string           $baseUrl;
-    public string           $privateKey;
-    public string           $appId;
-    public string           $language = 'de';
-    public CurlHandler      $curlHandler;
-    public SignatureHandler $signatureHandler;
-    public string           $defaultAlgorithm = 'SHA1withRSA';
+    public string               $baseUrl;
+    public string               $privateKey;
+    public string               $appId;
+    public string               $language = 'de';
+    public CurlHandler          $curlHandler;
+    public string               $defaultAlgorithm = 'SHA1withRSA';
+    public AboutApiCacheHandler $aboutApiCacheHandler;
 
     /**
      * @param string $baseUrl
@@ -34,12 +34,12 @@ class EduSharingHelperBase
         if (!preg_match('/^([a-z]|[A-Z]|[0-9]|[-_]|[.])+$/', $appId)) {
             throw new InvalidAppIdException('The given app id contains invalid characters or symbols');
         }
-        $baseUrl                = rtrim($baseUrl, '/');
-        $this->baseUrl          = $baseUrl;
-        $this->privateKey       = $privateKey;
-        $this->appId            = $appId;
-        $this->curlHandler      = new DefaultCurlHandler();
-        $this->signatureHandler = new DefaultSignatureHandler($this);
+        $baseUrl                    = rtrim($baseUrl, '/');
+        $this->baseUrl              = $baseUrl;
+        $this->privateKey           = $privateKey;
+        $this->appId                = $appId;
+        $this->curlHandler          = new DefaultCurlHandler();
+        $this->aboutApiCacheHandler = new DefaultAboutApiCacheHandler($this);
     }
 
     /**
@@ -53,13 +53,13 @@ class EduSharingHelperBase
     }
 
     /**
-     * Function registerSignatureHandler
+     * Function registerAboutApiCacheHandler
      *
-     * @param SignatureHandler $handler
+     * @param AboutApiCacheHandler $handler
      * @return void
      */
-    public function registerSignatureHandler(SignatureHandler $handler): void {
-        $this->signatureHandler = $handler;
+    public function registerAboutApiCacheHandler(AboutApiCacheHandler $handler): void {
+        $this->aboutApiCacheHandler = $handler;
     }
 
     /**
@@ -91,7 +91,8 @@ class EduSharingHelperBase
      * @throws Exception
      */
     public function sign(string $toSign): string {
-        $algorithm = $this->getOpenSslAlgorithm($this->signatureHandler->getAlgorithm());
+
+        $algorithm = $this->getOpenSslAlgorithm($this->getAlgorithm());
         $privateKeyId = openssl_get_privatekey($this->privateKey);
         $success      = false;
         if ($privateKeyId !== false) {
@@ -176,5 +177,22 @@ class EduSharingHelperBase
             'SHA512WITHRSA', 'SHA512RSA', 'SHA512' => OPENSSL_ALGO_SHA512,
             default => throw new InvalidArgumentException("Unsupported signature algorithm: {$algorithm}"),
         };
+    }
+
+    /**
+     * Function getRepoVersion
+     *
+     * @throws JsonException
+     */
+    public function getRepoVersion(): string {
+        $about = $this->aboutApiCacheHandler->getAboutApiCache();
+        return $about['version']['repository'];
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function getAlgorithm(): string {
+        return $this->aboutApiCacheHandler->getAboutApiCache()['defaultSignatureAlgorithm'] ?? $this->defaultAlgorithm;
     }
 }

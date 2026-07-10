@@ -54,7 +54,7 @@ abstract class EduSharingHelperAbstract
             'X-Edu-App-Signed: ' . $toSign,
             'X-Edu-App-Sig: ' . $signature,
             'X-Edu-App-Ts: ' . $ts,
-            'X-Edu-App-SignedAlg: ' . ($algorithm ?? $this->base->signatureHandler->getAlgorithm())
+            'X-Edu-App-SignedAlg: ' . ($algorithm ?? $this->base->getAlgorithm())
         ];
     }
 
