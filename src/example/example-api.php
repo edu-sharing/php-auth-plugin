@@ -64,7 +64,7 @@ try {
         // in a real application, you should check if the user is actually allowed to access this usage!
         $useRendering2 = false;
         try {
-            $about = $nodeHelper->base->getAbout();
+            $about = $nodeHelper->base->getAboutCached();
             $useRendering2 =  isset ($about['renderingService2']['url']);
         } catch (\Exception $e) {
             error_log("Exception: " . $e->getMessage());

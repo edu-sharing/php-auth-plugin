@@ -112,14 +112,29 @@ class EduSharingHelperBase
      */
     public function verifyCompatibility(): void {
         $minVersion = '8.0';
-        $about = $this->getAbout();
+        $about = $this->getAboutCached();
         if (version_compare($about["version"]["repository"], $minVersion) < 0) {
             throw new Exception("The Edu-Sharing version of the connected repository is too low");
         }
     }
 
     /**
+     * Function getAboutCached
+     *
+     * Retrieves the about info from the edu-sharing repository WITH caching
+     * You should use this function in your application to retrieve the about info
+     *
+     * @throws JsonException
+     */
+    public function getAboutCached(): array {
+        return $this->aboutApiCacheHandler->getAboutApiCache();
+    }
+
+    /**
      * Function getAbout
+     *
+     * Retrieves the about info from the edu-sharing repository WITHOUT caching
+     * Use this in your AboutApiCacheHandler implementation to cache the result
      *
      * @throws JsonException
      * @throws Exception
@@ -148,7 +163,7 @@ class EduSharingHelperBase
      * @throws Exception
      */
     public function getRenderingServiceUrl(): ?string {
-        $about = $this->getAbout();
+        $about = $this->getAboutCached();
         if (isset ($about['renderingService2']['url'])) {
             return $about['renderingService2']['url'];
         }
