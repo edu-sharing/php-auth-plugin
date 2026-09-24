@@ -170,6 +170,8 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      * @param string|null $userId
      * @return SecuredNode
      * @throws JsonException
+     * @throws NodeDeletedException if the node has been deleted in the repository (response code 404)
+     * @throws Exception
      */
     function getSecuredNodeByUsage(Usage $usage, ?string $userId = null): SecuredNode {
         $headers   = $this->getUsageSignatureHeaders($usage, $userId);
@@ -182,6 +184,10 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
+        // Checked ahead of decoding, so a 404 is recognized whatever body comes with it
+        if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 404) {
+            throw new NodeDeletedException('the given node is already deleted: ' . $usage->nodeId);
+        }
         $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
 
         if ($curl->error === 0 && ($curl->info['http_code'] ?? 0) === 200

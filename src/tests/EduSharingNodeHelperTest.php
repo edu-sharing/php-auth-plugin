@@ -336,6 +336,62 @@ class EduSharingNodeHelperTest extends TestCase
     }
 
     /**
+     * Function testGetSecuredNodeByUsageThrowsNodeDeletedExceptionOnErrorCode404
+     *
+     * The body is deliberately no json - a 404 must be recognized regardless of what comes with it
+     *
+     * @return void
+     */
+    public function testGetSecuredNodeByUsageThrowsNodeDeletedExceptionOnErrorCode404(): void {
+        $mock = $this->getSecuredNodeHelperMock(new CurlResult('Not Found', 0, ['http_code' => 404]));
+        $this->expectException(NodeDeletedException::class);
+        $this->expectExceptionMessage('the given node is already deleted');
+        $mock->getSecuredNodeByUsage(new Usage('nodeId', 'nodeVersion', 'containerId', 'resourceId', 'usageId'));
+    }
+
+    /**
+     * Function testGetSecuredNodeByUsageThrowsExceptionOnErrorCodeOtherThan404
+     *
+     * @return void
+     */
+    public function testGetSecuredNodeByUsageThrowsExceptionOnErrorCodeOtherThan404(): void {
+        $mock = $this->getSecuredNodeHelperMock(new CurlResult('{"error": "error", "message":"message"}', 0, ['http_code' => 500]));
+        try {
+            $mock->getSecuredNodeByUsage(new Usage('nodeId', 'nodeVersion', 'containerId', 'resourceId', 'usageId'));
+            $this->fail('no exception thrown');
+        } catch (NodeDeletedException) {
+            $this->fail('a response code other than 404 must not be taken for a deleted node');
+        } catch (Exception $exception) {
+            $this->assertStringContainsString('fetching secured node failed 500', $exception->getMessage());
+        }
+    }
+
+    /**
+     * Function getSecuredNodeHelperMock
+     *
+     * @param CurlResult $curlResult the response of the secured node endpoint
+     * @return EduSharingNodeHelper
+     */
+    private function getSecuredNodeHelperMock(CurlResult $curlResult): EduSharingNodeHelper {
+        $baseMock = $this->getMockBuilder(EduSharingHelperBase::class)
+            ->setConstructorArgs(['https://www.test.de', 'pkey123', 'myappid'])
+            ->onlyMethods(['handleCurlRequest'])
+            ->getMock();
+        $baseMock->expects($this->once())
+            ->method('handleCurlRequest')
+            ->willReturn($curlResult);
+        $helperConfig = new EduSharingNodeHelperConfig(new UrlHandling(true, 'https://endpoint.net'));
+        $mock         = $this->getMockBuilder(EduSharingNodeHelper::class)
+            ->setConstructorArgs([$baseMock, $helperConfig])
+            ->onlyMethods(['getSignatureHeaders'])
+            ->getMock();
+        $mock->expects($this->once())
+            ->method('getSignatureHeaders')
+            ->willReturn([]);
+        return $mock;
+    }
+
+    /**
      * Function testDeleteUsageReturnsVoidOnSuccessfulCall
      *
      * @return void
