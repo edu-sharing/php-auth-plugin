@@ -216,15 +216,63 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
      */
     private function getNodeByUsageRendering2(Usage $usage): CurlResult {
         $headers   = $this->getUsageSignatureHeaders($usage);
-        $url = $this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $usage->nodeId . '/metadata';
-        if ($usage->nodeVersion !== null && $usage->nodeVersion !== '' && $usage->nodeVersion !== '0' && $usage->nodeVersion !== '-1') {
-            $url .= '?version=' . rawurlencode($usage->nodeVersion);
-        }
-        return $this->base->handleCurlRequest($url, [
+        return $this->base->handleCurlRequest($this->getMetadataUrl($usage->nodeId, $usage->nodeVersion), [
             CURLOPT_FAILONERROR    => false,
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $headers
         ]);
+    }
+
+    /**
+     * Function getMetadataUrl
+     *
+     * The latest version is addressed if version is either null, an empty string, "0" or "-1"
+     *
+     * @param string $nodeId
+     * @param string|null $version
+     * @return string
+     */
+    private function getMetadataUrl(string $nodeId, ?string $version = null): string {
+        $url = $this->base->baseUrl . '/rest/node/v1/nodes/-home-/' . $nodeId . '/metadata';
+        if ($version !== null && $version !== '' && $version !== '0' && $version !== '-1') {
+            $url .= '?version=' . rawurlencode($version);
+        }
+        return $url;
+    }
+
+    /**
+     * Function getNodeByTicket
+     *
+     * Loads the node as the user the given ticket belongs to, without any usage involved.
+     * The "access" list of the returned node therefore holds that user's permissions,
+     * e.g. to find out beforehand whether they may create a usage (CCPublish)
+     *
+     * @param string $ticket
+     * @param string $nodeId
+     * @return array
+     * The NodeEntry as provided by the REST API
+     * @throws JsonException
+     * @throws NodeDeletedException if the node does not exist (response code 404)
+     * @throws Exception
+     */
+    public function getNodeByTicket(string $ticket, string $nodeId): array {
+        $headers   = $this->getSignatureHeaders($ticket);
+        $headers[] = $this->getRESTAuthenticationHeader($ticket);
+        $curl = $this->base->handleCurlRequest($this->getMetadataUrl($nodeId), [
+            CURLOPT_FAILONERROR    => false,
+            CURLOPT_RETURNTRANSFER => 1,
+            CURLOPT_HTTPHEADER     => $headers
+        ]);
+        // Checked ahead of decoding, so a 404 is recognized whatever body comes with it
+        if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 404) {
+            throw new NodeDeletedException('the given node does not exist: ' . $nodeId);
+        }
+        $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
+        if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 200 && isset($data['node'])) {
+            return $data;
+        }
+        throw new Exception('fetching node by ticket failed '
+            . ($curl->info['http_code'] ?? 'unknown') . ': ' . ($data['error'] ?? 'unknown') . ' ' . ($data['message'] ?? 'unknown'));
     }
 
     /**
