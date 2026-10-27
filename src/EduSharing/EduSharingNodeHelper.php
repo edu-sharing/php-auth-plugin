@@ -188,6 +188,10 @@ class EduSharingNodeHelper extends EduSharingHelperAbstract
         if ($curl->error === 0 && (int)($curl->info['http_code'] ?? 0) === 404) {
             throw new NodeDeletedException('the given node is already deleted: ' . $usage->nodeId);
         }
+        // A failed request has no body to decode, which would report a JSON "Syntax error" instead of the reason
+        if ($curl->error !== 0) {
+            throw new Exception('fetching secured node failed: ' . ($curl->info['message'] ?? ('curl error ' . $curl->error)));
+        }
         $data = json_decode($curl->content, true, 512, JSON_THROW_ON_ERROR);
 
         if ($curl->error === 0 && ($curl->info['http_code'] ?? 0) === 200
