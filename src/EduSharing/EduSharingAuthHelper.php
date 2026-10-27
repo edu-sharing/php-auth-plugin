@@ -12,6 +12,12 @@ use Exception;
 class EduSharingAuthHelper extends EduSharingHelperAbstract
 {
     /**
+     * Seconds to wait for a ticket request or validation. A repository under load takes longer
+     * than the 5 seconds allowed to connect, and failing means the page cannot show any object.
+     */
+    private const TICKET_TIMEOUT = 15;
+
+    /**
      * Function getTicketAuthenticationInfo
      *
      * Gets detailed information about a ticket
@@ -32,7 +38,7 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract
             ],
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_TIMEOUT        => 5
+            CURLOPT_TIMEOUT        => self::TICKET_TIMEOUT
         ]);
         if ($curl->content === '') {
             throw new Exception('No answer from repository. Possibly a timeout while trying to connect to ' . $this->base->baseUrl);
@@ -64,7 +70,7 @@ class EduSharingAuthHelper extends EduSharingHelperAbstract
             CURLOPT_RETURNTRANSFER => 1,
             CURLOPT_HTTPHEADER     => $this->getSignatureHeaders($username),
             CURLOPT_CONNECTTIMEOUT => 5,
-            CURLOPT_TIMEOUT        => 5
+            CURLOPT_TIMEOUT        => self::TICKET_TIMEOUT
         ];
         if ($additionalFields !== null) {
             $curlOptions[CURLOPT_POSTFIELDS] = json_encode($additionalFields, 512, JSON_THROW_ON_ERROR);
